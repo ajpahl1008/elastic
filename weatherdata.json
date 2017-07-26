@@ -1,0 +1,28 @@
+#Command line: cat datasets/products/products.csv | logstash/bin/logstash -f datasets/products/products.conf
+
+input {
+	stdin {}
+}
+
+filter {
+	csv {
+                columns => ["begin_yearmonth","begin_day","begin_time","end_yearmonth","end_day","end_time","episode_id","event_id","state","state_fips","year","month_name","event_type","cz_type","cz_fips","cz_name","wfo","begin_date_time","cz_timezone","end_date_time","injuries_direct","injuries_indirect","deaths_direct","deaths_indirect","damage_property","damage_crops","source","magnitude","magnitude_type","flood_cause","category","tor_f_scale","tor_length","tor_width","tor_other_wfo","tor_other_cz_state","tor_other_cz_fips","tor_other_cz_name","begin_range","begin_azimuth","begin_location","end_range","end_azimuth","end_location","begin_lat","begin_lon","end_lat","end_lon","episode_narrative","event_narrative","last_mod_date","last_mod_time","last_cert_date","last_cert_time","last_mod","last_cert","addcorr_flg","addcorr_date"]
+
+		separator => ","
+		remove_field => [ "message", "host", "@version", "@timestamp", "_all" ]
+	}
+}
+
+output {
+	#stdout { codec => rubydebug }
+	elasticsearch {
+		action => "index"
+	 	index => "weatherdata"
+		document_type => "weather"
+		document_id => "%{event_id}"
+		manage_template => true
+		template => "datasets/weatherdata/weather_template.json"
+		template_overwrite => true
+		template_name => "weatherdata"
+	}
+}

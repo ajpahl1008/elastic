@@ -1,0 +1,359 @@
+#Cluster Status
+GET /_cat/health
+GET /_cat/health?v
+#Index Status
+GET  _cat/indices
+
+GET _cat/indices?v
+GET _cat/thread_pool?v
+# node Status
+GET _cat/nodes?v
+GET _cat/nodes?v&h-*
+GET _cat/nodes
+GET _cat/nodes?v&h=name,disk.avail
+GET _cat/fielddata?v&h=node,field,size
+GET _nodes/node1/stats
+GET _nodes/stats
+GET _cat/health
+
+GET _cat/recovery
+GET _cat/nodeattrs?v
+
+GET _cluster/stats
+GET _cluster/settings
+GET _cluster/state
+GET _cluster/health?level=indices
+GET _cluster/health?level=shards
+GET _cluster/pending_tasks
+GET _tasks
+
+PUT <index>/_flush
+PUT <index>/_flush/synced
+GET _cluster/health/test_health
+
+POST <index>/_forcemerge
+
+PUT test_health/_settings
+{
+  "number_of_replicas": 1
+}
+
+#Change Cluster Settings
+PUT /_cluster/settings
+{
+    "transient" : {
+        "logger.discovery" : "DEBUG"
+    }
+}
+
+GET _cluster/health?wait_for_status=green&timeout=10s
+GET _cluster/state/routing_table
+GET _cluster/allocation/explain
+GET _cluster/health?wait_for_status=yellow
+
+## CoreOps Day1
+
+# Create Index called Tweets
+PUT /tweets
+
+# Get the status
+GET /tweets/_settings
+
+#Crteate a new document with type tweet.
+PUT /tweets/tweet/1
+{
+    "username" : "elasticuser",
+  "comment" : "I am enjoying Elasticsearch so far!"
+}
+
+
+GET tweets/tweet/1
+# Delete Document
+DELETE /tweets/tweet/1
+# Delete index
+DELETE logs
+
+
+PUT test_index
+
+GET test_index/_settings
+
+PUT logs/log/100
+{
+  "level" : "INFO",
+  "log_time" : "2017-01-30T08:25:51,981",
+  "message" : "[node1] loaded module [lang-painless]"
+}
+
+
+PUT logs/_settings
+{
+  "settings": {
+    "number_of_replicas": 2
+  }
+}
+
+GET logs/_settings
+
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "action.auto_create_index" : null
+  }
+}
+
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "my_logs",
+        "alias": "current_logs"
+      }
+    }
+  ]
+}
+
+PUT my_logs/log/100
+{
+  "level" : "INFO",
+  "log_time" : "2017-01-30T08:25:51,981",
+  "message" : "[node1] loaded module [lang-painless]"
+}
+
+GET current_logs/log/100
+
+
+POST _template/logs_template
+{
+ "template" : "logs-*",
+ "order": 10,
+ "settings": {
+   "number_of_shards": 2,
+   "number_of_replicas" : 1
+ }
+}
+
+PUT test_health
+{
+  "settings": {
+    "number_of_shards" : 2,
+    "number_of_replicas": 2
+  }
+}
+GET test_health
+DELETE test_health
+
+PUT logs-test
+GET logs-test/_settings
+PUT test2
+GET test2/_settings
+
+GET //my_test/my_type/1
+
+GET my_test/_mappings
+
+POST /my_test/my_type/1
+{
+  "field1" : 12.99,
+  "field2" : false,
+  "field3" : "Every application should have search",
+  "field4" : "Tuesday, May 12",
+  "field5" : "2017-07-04",
+  "field6" : 1486339200021
+}
+
+GET tweets/_search
+GET /tweets/_search
+{
+"size": 0,
+"aggs": {
+  "unique_users": {
+    "terms": {
+      "field": "username.keyword",
+      "size": 10
+    }
+  }
+}
+}
+
+
+GET /my_test/_segments
+GET _cat/segments?v
+
+POST tweets/tweet/_bulk
+{ "index" : {"_id" : "2" } }
+{ "username" : "elasticfan", "comment" : "Yes - this is a lot of fun" }
+{ "index" : {"_id" : "3" } }
+{ "username" : "kimchy", "comment" : "Every application should have a search component" }
+{ "index" : {"_id" : "4" } }
+{ "username" : "elasticfan", "comment" : "We use search in a lot of our applications" }
+{ "index" : {"_id" : "5" } }
+{ "username" : "elasticuser", "comment" : "Search is our main application" }
+
+
+GET _analyze
+{
+  "analyzer": "stop",
+"text": "This is a short but simple message."
+}
+
+DELETE my_tweets
+
+
+PUT logs-2017-07-05
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  }
+}
+
+POST _aliases
+{
+   "actions": [
+     {
+
+       "add": {
+         "index": "logs-2017-07-05",
+         "alias": "logs-read"
+       }
+     }
+   ]
+}
+
+PUT logs-write/doc/_bulk
+{ "index" : { "_id" : "4"}}
+{ "level" : "INFO", "message" : "[node2] started", "date" : "2017-07-05"}
+{ "index" : { "_id" : "5"}}
+{ "level" : "WARN", "message" : "not enough master nodes discovered during pinging", "date" : "2017-07-05"}
+
+PUT logs-write/doc/_bulk
+{ "index" : { "_id" : "1"}}
+{ "level" : "INFO", "message" : "recovered [20] indices into cluster_state", "date" : "2017-07-04"}
+{ "index" : { "_id" : "2"}}
+{ "level" : "WARN", "message" : "received shard failed for shard id 0", "date" : "2017-07-04"}
+{ "index" : { "_id" : "3"}}
+{ "level" : "INFO", "message" : "Cluster health status changed from [YELLOW] to [GREEN]", "date" : "2017-07-04"}
+
+GET logs-read/_search
+
+POST /my_tweets/tweet/_bulk
+{ "index" : { "_id" : "1"}}
+{ "username" : "user1", "message" : "Hello"}
+{ "index" : { "_id" : "2"}}
+{ "username" : "user2", "message" : "How are you?"}
+{ "index" : { "_id" : "3"}}
+{ "username" : "user1", "message" : "Feeling great!"}
+
+PUT test_1
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1
+  }
+}
+
+POST _reindex
+{
+  "source": {"index" : "my_tweets"},
+  "dest" : { "index" : "new_tweets"}
+}
+
+GET logs-2017-07-05/_search
+
+GET logs-read/_search
+DELETE  logs-read
+GET logs-read/_search
+GET logs-2017-07-04/_search
+
+
+POST my_tweets/_close
+
+GET my_tweets/_search
+
+GET _cat/nodeattrs?v
+
+GET tweets-20
+
+PUT tweets-2017-02-14
+{
+  "settings": {
+    "number_of_replicas": 0,
+    "number_of_shards": 2,
+    "index.routing.allocation.require" : {
+      "server_size": "small",
+      "temp": "hot"
+    }
+  }
+}
+
+PUT tweets-2017-02-16
+{
+  "settings": {
+    "number_of_replicas": 0,
+    "number_of_shards": 2,
+    "index.routing.allocation.require" : {
+      "server_size": "small",
+      "temp": "warm"
+    }
+  }
+}
+
+GET _cluster/state/routing_table/tweets-2017-02-*
+
+
+GET _cluster/state/routing_table/tweets-2017-02-*
+
+
+
+### CLUSTER STUFF ####
+
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster": {
+      "routing": {
+        "allocation.awareness.attributes": "zone",
+        "allocation.awareness.force.zone.values": "zoneA,zoneB"
+      }
+    }
+  }
+}
+
+
+GET _cluster/state/routing_table/test_1
+
+PUT _snapshot/my_local_repo
+{
+  "type": "fs",
+  "settings": {
+    "location": "my_repo"
+  }
+}
+
+get test_snapshot/doc/1
+PUT test_snapshot/doc/1
+{
+  "comment" : "Just testing"
+}
+
+
+PUT _snapshot/my_local_repo/all_indices_1
+PUT _snapshot/my_local_repo/all_indices_2
+GET _snapshot/my_local_repo/all_indices_2
+DELETE _snapshot/my_local_repo/all_indices_1
+
+
+POST _snapshot/my_local_repo/all_indices_1/_restore
+{
+  "indices": "test_snapshot",
+  "rename_pattern": "test_snapshot",
+  "rename_replacement": "new_test_snapshot"
+}
+
+GET new_test_snapshot/_search
+
+GET _cat/indices?v

@@ -1,0 +1,788 @@
+GET _cat/
+
+GET _cat/indices?v
+
+DELETE weatherdata
+
+GET weatherdata/_settings
+
+GET weatherdata/_mapping
+
+## Advanced Chapter 1 PAINLESS Scripting ###
+
+GET crimes/_search
+
+GET crimes/doc/10544703
+
+
+# DEFINING SCRIPT
+POST _scripts/arrest_made
+{
+  "script": {
+    "lang": "painless",
+    "code": """
+ctx._source.arrest_made = params.new_value;
+ctx._source.incident.updated_on = Calendar.getInstance();
+if(params.new_value == true && ctx._source.detectives == null) {
+  ctx._source.detectives = [];
+}
+"""
+  }
+}
+
+# SAME SCRIPT one line
+POST _scripts/arrest_made
+{
+  "script" : {
+    "lang" : "painless",
+    "code" : "ctx._source.arrest_made = params.new_value; ctx._source.incident.updated_on = Calendar.getInstance(); if(params.new_value == true && ctx._source.detectives == null) { ctx._source.detectives = [];}"
+}
+}
+
+
+POST crimes/doc/10544703/_update
+{
+  "script": {
+    "stored" : "arrest_made",
+    "params": {
+      "new_value" : true
+    }
+  }
+}
+
+POST _scripts/add_detectdive
+{
+  "script": {
+    "lang": "painless",
+    "code": """
+      if(!ctx._source.containsKey("detectives")) {
+  ctx._source.detectives=[params.detective_name];
+  ctx._source.incident.updated_on = Calendar.getInstance();
+} else if(!ctx._source.detectives.contains(params.detective_name)) {
+  ctx._source.detectives.add(params.detective_name);
+  ctx._source.incident.updated_on = Calendar.getInstance();
+}
+"""
+  }
+}
+
+POST crimes/doc/10544703/_update
+{
+  "script": {
+    "stored" : "add_detectdive",
+    "params" : {
+      "detective_name": "Nero Wolfe"
+    }
+  }
+}
+
+POST crimes/doc/10543829/_update
+{
+  "script": {
+    "stored" : "add_detectdive",
+    "params" : {
+      "detective_name": "Van der Valk"
+    }
+  }
+}
+
+GET crimes/doc/10543829
+
+## Advanced Chapter 2 Controlling Relevance
+PUT persons
+{
+  "settings":
+  {
+    "number_of_shards": 1
+  }
+}
+
+POST _bulk
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "1" } }
+{"first_name": "robert", "middle_name": "john", "last_name" : "williams", "dob": "1976-05-06" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "2" } }
+{"first_name": "bob", "middle_name": "", "last_name" : "williams", "dob": "1976-06-05" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "3" } }
+{"first_name": "robert", "middle_name": "williams", "last_name" : "john", "dob": "1976" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "4" } }
+{"first_name": "williams", "middle_name": "", "last_name" : "robert", "dob": "1976" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "5" } }
+{"first_name": "robert", "middle_name": "john", "last_name" : "williams", "dob": "2002-02-02" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "6" } }
+{"first_name": "katy", "middle_name": "d", "last_name" : "williams", "dob": "1978-04-26" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "7" } }
+{"first_name": "john", "middle_name": "richard", "last_name" : "smith", "dob": "1980-11-14" }
+{ "index" : { "_index" : "persons", "_type" : "doc", "_id" : "8" } }
+{"first_name": "jane", "middle_name": "", "last_name" : "grand", "dob": "1976-05-06" }
+
+
+GET persons/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "match": {
+            "first_name": "robert"
+          }
+        },
+        {
+          "match": {
+            "middle_name": "john"
+          }
+        }, {
+          "match": {
+            "last_name": "williams"
+          }
+        }, {
+          "match": {
+            "dob": "1976-05-06"
+          }
+        }
+      ]
+    }
+  }
+}
+
+GET persons/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "multi_match": {
+            "query": "robert",
+            "fields": [
+              "first_name^10",
+              "middle_name",
+              "last_name"
+            ]
+          }
+        },
+        {
+          "multi_match": {
+            "query": "john",
+            "fields": [
+              "first_name",
+              "middle_name^10",
+              "last_name"
+            ]
+          }
+        },
+        {
+          "multi_match": {
+            "query": "williams",
+            "fields": [
+              "first_name",
+              "middle_name",
+              "last_name^10"
+            ]
+          }
+        },
+        {
+          "match": {
+            "dob": "1976-05-06"
+          }
+        }
+      ]
+    }
+  }
+}
+
+DELETE persons
+
+PUT persons
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "filter": {
+        "my_synonym_filter": {
+          "type": "synonym",
+              "synonyms" : [ "robert", "rob", "bob"]
+        }
+      }, "analyzer": {
+        "my_name_analyzer" : {
+          "tokenizer" : "standard",
+          "filter" : [
+            "lowercase",
+            "my_synonym_filter"
+            ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "dob": {
+          "type": "date"
+        },
+        "first_name": {
+          "type": "text",
+          "analyzer": "my_name_analyzer"
+        },
+        "last_name": {
+          "type": "text",
+          "analyzer": "my_name_analyzer"
+        },
+        "middle_name": {
+          "type": "text",
+          "analyzer": "my_name_analyzer"
+        }
+      }
+    }
+  }
+}
+
+GET persons/_analyze
+{
+  "analyzer": "my_name_analyzer",
+  "text": ["Robert"]
+}
+
+PUT persons/_mapping/doc
+{
+  "properties": {
+    "first_name": {
+      "type": "text",
+      "analyzer": "my_name_analyzer",
+      "copy_to": [
+        "full_name"
+      ]
+    },
+    "full_name": {
+      "type": "text",
+      "analyzer": "my_name_analyzer"
+    },
+    "last_name": {
+      "type": "text",
+      "analyzer": "my_name_analyzer",
+      "copy_to": [
+        "full_name"
+      ]
+    },
+    "middle_name": {
+      "type": "text",
+      "analyzer": "my_name_analyzer",
+      "copy_to": [
+        "full_name"
+      ]
+    }
+  }
+}
+
+POST persons/_update_by_query
+
+
+GET persons/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "match": {
+            "full_name": {
+            "query": "robert john williams",
+            "minimum_should_match": 2
+            }
+          }
+        }
+      ],
+      "should": [
+        {
+          "multi_match": {
+            "query": "robert",
+            "fields": [
+              "first_name^10",
+              "middle_name",
+              "last_name"
+            ]
+          }
+        },
+        {
+          "multi_match": {
+            "query": "john",
+            "fields": [
+              "first_name",
+              "middle_name^10",
+              "last_name"
+            ]
+          }
+        },
+        {
+          "multi_match": {
+            "query": "williams",
+            "fields": [
+              "first_name",
+              "middle_name",
+              "last_name^10"
+            ]
+          }
+        },
+        {
+          "match": {
+            "dob": "1976-05-06"
+          }
+        }
+      ]
+    }
+  }
+}
+
+GET persons/_search
+{
+  "query": {
+    "function_score": {
+      "query": {
+        "bool": {
+          "filter": [
+            {
+              "match": {
+                "full_name": {
+                  "query": "robert john williams",
+                  "minimum_should_match": 2
+                }
+              }
+            }
+          ],
+          "should": [
+            {
+              "multi_match": {
+                "query": "robert",
+                "fields": [
+                  "first_name^10",
+                  "middle_name",
+                  "last_name"
+                ]
+              }
+            },
+            {
+              "multi_match": {
+                "query": "john",
+                "fields": [
+                  "first_name",
+                  "middle_name^10",
+                  "last_name"
+                ]
+              }
+            },
+            {
+              "multi_match": {
+                "query": "williams",
+                "fields": [
+                  "first_name",
+                  "middle_name",
+                  "last_name^10"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "functions": [
+        {
+          "exp": {
+            "dob": {
+              "origin": "1976-05-06",
+              "scale": "180d",
+              "offset": "0",
+              "decay": 0.5
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+##### GEO LOCATION ######
+## Day 2 Lab 4 #####
+GET crimes/_search
+
+GET crimes/_search
+{
+  "size": 0,
+  "aggs": {
+    "incident_community_agg": {
+      "terms": {
+        "script": "doc['incident.incident_type.keyword'].value + ' '  + doc['area.community'].value",
+        "size": 20,
+        "shard_size": 100
+      }
+    }
+  }
+}
+
+GET crimes/_search
+{
+  "aggs": {
+    "monthly_crimes": {
+      "date_histogram": {
+        "field": "incident.incident_date",
+        "interval": "month", "min_doc_count": 10000
+      }
+    }
+  }
+}
+## Pipeline Aggregation and Sibling/Parent Reference
+GET crimes/_search
+{
+  "size": 0,
+  "aggs": {
+    "monthly_crimes": {
+      "date_histogram": {
+        "field": "incident.incident_date",
+        "interval": "month",
+        "min_doc_count": 10000
+      },
+      "aggs": {
+        "crime_types": {
+          "terms": {
+            "field": "incident.incident_type.keyword",
+            "size": 20,
+            "shard_size": 50
+          }
+        },
+        "min_crime_type" : {
+          "min_bucket": {
+            "buckets_path": "crime_types._count"
+          }
+        },
+        "max_crime_type" : {
+          "max_bucket": {
+            "buckets_path": "crime_types._count"
+          }
+        }
+      }
+    },
+    "max_monthly_crimes" : {
+      "max_bucket": {
+        "buckets_path": "monthly_crimes._count"
+      }
+    },
+    "overall_max_crime_type" : {
+      "max_bucket": {
+        "buckets_path": "monthly_crimes.max_crime_type"
+      }
+    },
+    "overall_min_crime_type" : {
+      "min_bucket": {
+        "buckets_path": "monthly_crimes.min_crime_type"
+      }
+    }
+  }
+}
+
+GET crimes/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "incident.incident_type": "homicide"
+          }
+        }
+      ],
+      "filter": {
+        "script": {
+          "script": "doc['area.location'].lat > 40"
+        }
+      }
+    }
+  },
+  "aggs": {
+    "homicide_geo_bounds": {
+      "geo_bounds": {
+        "field": "area.location"
+      }
+    }
+  }
+}
+
+GET crimes/_search
+
+GET crimes/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "incident.incident_type": "homicide"
+          }
+        }
+      ],
+      "filter": {
+        "script": {
+          "script": "doc['area.latitude'].value > 40"
+        }
+      }
+    }
+  },
+  "aggs": {
+    "homicide_geo_bounds": {
+      "geo_bounds": {
+        "field": "area."
+
+      }
+    }
+  }
+}
+
+
+GET crimes/_search
+{
+  "size": 0,
+  "query": {
+     "bool": {
+      "must": [
+        {
+          "match": {
+            "incident.incident_type": "homicide"
+          }
+        }
+      ],
+      "filter": {
+        "script": {
+          "script": "doc['area.location'].lat> 40"
+        }
+      }
+    }
+  },
+  "aggs": {
+    "homicide_centroid": {
+      "geo_centroid": {
+        "field" : "area.latitude"
+      }
+    }
+  }
+}
+
+## mapping fields to new ones ###
+POST crimes/_update_by_query
+{
+  "script" : {
+    "inline": """
+ctx._source['crime_geoshape'] = [
+  'type': 'point',
+  'coordinates': [ctx._source.area.longitude, ctx._source.area.latitude]
+]
+"""
+  }
+}
+
+GET crimes/_search
+{
+  "suggest": {
+    "my_suggestion": {
+      "text" : "55st",
+      "term" : {
+        "field": "area.block",
+       "sort": "frequency"
+
+      }
+    }
+  }
+}
+
+GET crimes/_search
+{
+  "query": {
+    "match_phrase": {
+      "area.block": "001XX n staTe"
+    }
+  },
+
+  "suggest" : {
+    "my_suggestion" : {
+      "text" : "001XX n state",
+      "phrase" : {
+        "field" : "area.block"
+      }
+    }
+  }
+}
+
+## Update Mapping for Completion Suggestor
+PUT crimes/doc/_mapping
+{
+  "properties": {
+    "incident" : {
+      "properties": {
+        "description" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword"
+            },
+            "suggestion" : {
+              "type" : "completion",
+              "contexts" : [
+                {
+                  "type" : "geo",
+                  "name" : "location",
+                  "path" : "area.location"
+                },
+                {
+                  "type" : "category",
+                  "name" : "crime_category",
+                  "path" : "incident.incident_type"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+POST crimes/_update_by_query
+
+
+GET crimes/_search
+{
+ "suggest" : {
+   "my_suggestion" : {
+     "prefix": "poss",
+     "completion" : {
+       "field" : "incident.description.suggestion",
+       "contexts": {
+         "crime_category": "NARCOTICS",
+         "location": {
+           "lat": 41.945336,
+           "lon": -87.646045,
+         "precision": 4
+
+         }}
+     }
+   }
+ }
+}
+
+
+## Search in Reverse - Percolator
+# Create a new Index
+PUT crime_queries
+{
+  "mappings": {
+    "doc" : {
+      "properties": {
+        "crime_query" : {
+          "type" : "percolator"
+        }
+      }
+    }
+  }
+}
+GET crime_queries/_search
+
+PUT crime_queries/doc/101
+{
+  "crime_query" : {
+    "match": {
+      "incident.incident_type": "burglary"
+    }
+  }
+}
+
+PUT crime_queries/doc/102
+{
+  "crime_query" : {
+    "match" : {
+      "incident.incident_type": "theft"
+    }
+  }
+}
+
+PUT crime_queries/doc/103
+{
+  "crime_query" : {
+    "match" : {
+      "incident.incident_type": "assault"
+    }
+  }
+}
+
+
+POST crime_queries/_mapping/doc
+{
+  "properties": {
+    "incident.incident_type" : {
+      "type" : "text"
+    }
+  }
+}
+
+
+GET crime_queries/_search
+{
+  "query": {
+    "percolate" : {
+      "field" : "crime_query",
+      "document_type" : "doc",
+      "document" : {
+        "area": {
+          "district": "008",
+          "latitude": 41.759162013,
+          "beat": "0835",
+          "description": "OTHER",
+          "block": "074XX S WESTERN AVE",
+          "location": [
+            -87.683100073,
+            41.759162013
+          ],
+          "ward": 18,
+          "community": 66,
+          "longitude": -87.683100073
+        },
+        "arrest_made": false,
+        "case_number": "HZ317594",
+        "id": "10569593",
+        "is_domestic": false,
+        "incident": {
+          "updated_on": "2016-06-28T08:51:55.000Z",
+          "incident_type": "MOTOR VEHICLE THEFT",
+          "incident_date": "2016-06-21T06:30:00.000Z",
+          "year": 2016,
+          "IUCR": "0910",
+          "description": "AUTOMOBILE",
+          "fbi_code": "07"
+        }
+      }
+    }
+  }
+}
+
+GET crime_queries/_search
+{
+  "query": {
+    "percolate" : {
+      "field" : "crime_query",
+      "document_type" : "doc",
+      "index" : "crimes",
+      "type" : "doc",
+      "id" : 10569779
+    }
+  }
+}
+
+GET crimes/doc/10569314
+
+GET crime_queries/_search
+{
+  "query": {
+    "percolate" : {
+      "field" : "crime_query",
+      "document_type" : "doc",
+      "index" : "crimes",
+      "type" : "doc",
+      "id" : 10569314
+    }
+  }
+}

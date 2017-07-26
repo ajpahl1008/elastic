@@ -1,0 +1,1411 @@
+#Cluster Status
+GET /_cat/health
+GET /_cat/health?v
+#Index Status
+GET  _cat/indices
+
+GET _cat/indices?v
+GET _cat/thread_pool?v
+# node Status
+GET _cat/nodes?v
+GET _cat/nodes?v&h-*
+GET _cat/nodes
+GET _cat/nodes?v&h=name,disk.avail
+GET _cat/fielddata?v&h=node,field,size
+GET _nodes/node1/stats
+GET _nodes/stats
+GET _cat/health
+
+GET _cat/recovery
+GET _cat/nodeattrs?v
+
+GET _cluster/stats
+GET _cluster/settings
+GET _cluster/state
+GET _cluster/health?level=indices
+GET _cluster/health?level=shards
+GET _cluster/pending_tasks
+GET _tasks
+
+PUT <index>/_flush
+PUT <index>/_flush/synced
+GET _cluster/health/test_health
+
+POST <index>/_forcemerge
+
+PUT test_health/_settings
+{
+  "number_of_replicas": 1
+}
+
+#Change Cluster Settings
+PUT /_cluster/settings
+{
+    "transient" : {
+        "logger.discovery" : "DEBUG"
+    }
+}
+
+GET _cluster/health?wait_for_status=green&timeout=10s
+GET _cluster/state/routing_table
+GET _cluster/allocation/explain
+GET _cluster/health?wait_for_status=yellow
+
+## CoreOps Day1
+
+# Create Index called Tweets
+PUT /tweets
+
+# Get the status
+GET /tweets/_settings
+
+#Crteate a new document with type tweet.
+PUT /tweets/tweet/1
+{
+    "username" : "elasticuser",
+  "comment" : "I am enjoying Elasticsearch so far!"
+}
+
+
+GET tweets/tweet/1
+# Delete Document
+DELETE /tweets/tweet/1
+# Delete index
+DELETE logs
+
+
+PUT test_index
+
+GET test_index/_settings
+
+PUT logs/log/100
+{
+  "level" : "INFO",
+  "log_time" : "2017-01-30T08:25:51,981",
+  "message" : "[node1] loaded module [lang-painless]"
+}
+
+
+PUT logs/_settings
+{
+  "settings": {
+    "number_of_replicas": 2
+  }
+}
+
+GET logs/_settings
+
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "action.auto_create_index" : null
+  }
+}
+
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "my_logs",
+        "alias": "current_logs"
+      }
+    }
+  ]
+}
+
+PUT my_logs/log/100
+{
+  "level" : "INFO",
+  "log_time" : "2017-01-30T08:25:51,981",
+  "message" : "[node1] loaded module [lang-painless]"
+}
+
+GET current_logs/log/100
+
+
+POST _template/logs_template
+{
+ "template" : "logs-*",
+ "order": 10,
+ "settings": {
+   "number_of_shards": 2,
+   "number_of_replicas" : 1
+ }
+}
+
+PUT test_health
+{
+  "settings": {
+    "number_of_shards" : 2,
+    "number_of_replicas": 2
+  }
+}
+GET test_health
+DELETE test_health
+
+PUT logs-test
+GET logs-test/_settings
+PUT test2
+GET test2/_settings
+
+GET //my_test/my_type/1
+
+GET my_test/_mappings
+
+POST /my_test/my_type/1
+{
+  "field1" : 12.99,
+  "field2" : false,
+  "field3" : "Every application should have search",
+  "field4" : "Tuesday, May 12",
+  "field5" : "2017-07-04",
+  "field6" : 1486339200021
+}
+
+GET tweets/_search
+GET /tweets/_search
+{
+"size": 0,
+"aggs": {
+  "unique_users": {
+    "terms": {
+      "field": "username.keyword",
+      "size": 10
+    }
+  }
+}
+}
+
+
+GET /my_test/_segments
+GET _cat/segments?v
+
+POST tweets/tweet/_bulk
+{ "index" : {"_id" : "2" } }
+{ "username" : "elasticfan", "comment" : "Yes - this is a lot of fun" }
+{ "index" : {"_id" : "3" } }
+{ "username" : "kimchy", "comment" : "Every application should have a search component" }
+{ "index" : {"_id" : "4" } }
+{ "username" : "elasticfan", "comment" : "We use search in a lot of our applications" }
+{ "index" : {"_id" : "5" } }
+{ "username" : "elasticuser", "comment" : "Search is our main application" }
+
+
+GET _analyze
+{
+  "analyzer": "stop",
+"text": "This is a short but simple message."
+}
+
+DELETE my_tweets
+
+
+PUT logs-2017-07-05
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  }
+}
+
+POST _aliases
+{
+   "actions": [
+     {
+
+       "add": {
+         "index": "logs-2017-07-05",
+         "alias": "logs-read"
+       }
+     }
+   ]
+}
+
+PUT logs-write/doc/_bulk
+{ "index" : { "_id" : "4"}}
+{ "level" : "INFO", "message" : "[node2] started", "date" : "2017-07-05"}
+{ "index" : { "_id" : "5"}}
+{ "level" : "WARN", "message" : "not enough master nodes discovered during pinging", "date" : "2017-07-05"}
+
+PUT logs-write/doc/_bulk
+{ "index" : { "_id" : "1"}}
+{ "level" : "INFO", "message" : "recovered [20] indices into cluster_state", "date" : "2017-07-04"}
+{ "index" : { "_id" : "2"}}
+{ "level" : "WARN", "message" : "received shard failed for shard id 0", "date" : "2017-07-04"}
+{ "index" : { "_id" : "3"}}
+{ "level" : "INFO", "message" : "Cluster health status changed from [YELLOW] to [GREEN]", "date" : "2017-07-04"}
+
+GET logs-read/_search
+
+POST /my_tweets/tweet/_bulk
+{ "index" : { "_id" : "1"}}
+{ "username" : "user1", "message" : "Hello"}
+{ "index" : { "_id" : "2"}}
+{ "username" : "user2", "message" : "How are you?"}
+{ "index" : { "_id" : "3"}}
+{ "username" : "user1", "message" : "Feeling great!"}
+
+PUT test_1
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1
+  }
+}
+
+POST _reindex
+{
+  "source": {"index" : "my_tweets"},
+  "dest" : { "index" : "new_tweets"}
+}
+
+GET logs-2017-07-05/_search
+
+GET logs-read/_search
+DELETE  logs-read
+GET logs-read/_search
+GET logs-2017-07-04/_search
+
+
+POST my_tweets/_close
+
+GET my_tweets/_search
+
+GET _cat/nodeattrs?v
+
+GET tweets-20
+
+PUT tweets-2017-02-14
+{
+  "settings": {
+    "number_of_replicas": 0,
+    "number_of_shards": 2,
+    "index.routing.allocation.require" : {
+      "server_size": "small",
+      "temp": "hot"
+    }
+  }
+}
+
+PUT tweets-2017-02-16
+{
+  "settings": {
+    "number_of_replicas": 0,
+    "number_of_shards": 2,
+    "index.routing.allocation.require" : {
+      "server_size": "small",
+      "temp": "warm"
+    }
+  }
+}
+
+GET _cluster/state/routing_table/tweets-2017-02-*
+
+
+GET _cluster/state/routing_table/tweets-2017-02-*
+
+
+
+### CLUSTER STUFF ####
+
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster": {
+      "routing": {
+        "allocation.awareness.attributes": "zone",
+        "allocation.awareness.force.zone.values": "zoneA,zoneB"
+      }
+    }
+  }
+}
+
+
+GET _cluster/state/routing_table/test_1
+
+PUT _snapshot/my_local_repo
+{
+  "type": "fs",
+  "settings": {
+    "location": "my_repo"
+  }
+}
+
+get test_snapshot/doc/1
+PUT test_snapshot/doc/1
+{
+  "comment" : "Just testing"
+}
+
+
+PUT _snapshot/my_local_repo/all_indices_1
+PUT _snapshot/my_local_repo/all_indices_2
+GET _snapshot/my_local_repo/all_indices_2
+DELETE _snapshot/my_local_repo/all_indices_1
+
+
+POST _snapshot/my_local_repo/all_indices_1/_restore
+{
+  "indices": "test_snapshot",
+  "rename_pattern": "test_snapshot",
+  "rename_replacement": "new_test_snapshot"
+}
+
+GET new_test_snapshot/_search
+
+GET _cat/indices?v
+
+### Day 3 Developer ###
+
+GET _search
+{
+  "query": {
+    "match_all" : {}
+  }
+}
+
+GET products/_search
+{
+  "query": {
+    "match" : {
+      "price" : 10.00
+    }
+  }
+}
+
+GET products/_search
+{
+  "aggs": {
+    "my_avg_price": {
+      "avg": {
+        "field": "price"
+      }
+    }
+  },
+  "size": 0
+}
+
+GET my_orders/_search
+{
+
+}
+}
+#This actually created a new index called my_orders
+POST _bulk
+{"index" : {"_index" : "my_orders", "_type":"order"}}
+{"customer_id" : "55","items" : [{"upc12" : "044000025298","quantity" : 12,"price" : 2.98}]}
+{"index" : {"_index" : "my_orders", "_type":"order"}}
+{"customer_id" : "401","items" : [{"upc12" : "044000032258","quantity" : 1,"price" : 3.04}]}
+{"index" : {"_index" : "my_orders", "_type":"order"}}
+{"customer_id" : "3","items" : [{"upc12" : "014100042181","quantity" : 4,"price" : 2.88}]}
+
+GET my_orders/_search
+
+
+GET products/_search
+{
+  "query": {
+    "match": {
+     "productName": {
+     "query": "ve",
+      "operator": "and"
+     }
+    }
+  },
+  "_source": {
+    "includes": [
+      "price", "productName"
+      ]
+  },
+  "size":100
+
+}
+
+
+GET products/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {"productName": "vegetarian baked beans"}}
+      ]
+    }
+  }
+}
+
+GET products/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {"productName": "olive oil"}}
+      ],
+      "must_not": [
+        {"match": {"productName": "soap "}}
+      ]
+    }
+  }
+}
+
+GET _analyze
+{
+   "analyzer": "simple"
+  , "char_filter": []
+, "text": ["Dude looks like a lady"]
+}
+
+
+GET products/_search
+{
+  "query": {
+     "match_phrase": {
+      "productName": {
+        "query": "chocolate cookies",
+        "slop" :2
+        }
+    }
+  }
+, "size": 200
+}
+
+
+GET products/_search
+{
+  "query": {
+    "match": {
+      "productName": {
+        "query": "vegetarian baked beans",
+        "minimum_should_match" : 3
+      }
+
+    }
+  },
+  "_source": {
+      "includes": ["productName","price","customerRating"]
+  }
+}
+
+GET products/_search
+{
+"query": {
+"match_phrase": {
+    "productName": "olive oil"
+  }
+},"size": 100
+}
+########################
+##### ANALYSIS #########
+########################
+GET _analyze
+{
+   "tokenizer": "standard",
+"char_filter": [
+  {
+    "type":"mapping",
+    "mappings" : ["- => _"]
+  }],
+   "text": ["half-time", "-test", "test-", "650-555-1234"]
+}
+
+GET _analyze
+{
+   "tokenizer": "standard",
+"char_filter": [
+  {
+    "type":"mapping",
+    "mappings" : ["- => "]
+  }],
+   "text": ["half-time", "-test", "test-", "650-555-1234"]
+}
+
+GET _analyze
+{
+   "tokenizer": "standard",
+"char_filter": [
+  {
+    "type":"mapping",
+    "mappings" : [":) => happy ", ":( => sad "]
+  }],
+   "text": ["Thanks! :)", "Feeling :( today"]
+}
+
+GET _analyze
+{
+    "tokenizer": "standard",
+    "filter": ["lowercase","snowball"],
+   "text": ["The rain in Spain falls mainly on the plain."]
+}
+
+GET _analyze
+{
+    "analyzer": "english",
+    "text": ["The rain in Spain falls mainly on the plain."]
+}
+
+GET _analyze
+{
+  "tokenizer": "whitespace",
+  "filter": ["stop","snowball"],
+  "text": ["The rain in Spain falls mainly on the plain."]
+}
+
+
+GET _analyze
+{
+    "tokenizer": "standard",
+    "filter": ["lowercase","asciifolding"],
+    "text": [" Es un espectáculo público."]
+}
+
+
+PUT temp_products
+{
+  "settings": {
+
+    "analysis": {
+      "char_filter": {
+        "apostrophe" : {
+          "type" :"mapping",
+          "mappings": ["' =>  ", "- => "]
+        }
+
+    },
+    "analyzer" : {
+      "product_analyzer": {
+         "char_filter": ["apostrophe"],
+         "tokenizer" : "standard",
+         "filter" : ["stop", "lowercase"]
+      }
+    }
+  }
+}
+}
+
+GET temp_products/_analyze
+{
+  "analyzer": "product_analyzer",
+  "text": [
+    "Lean Cuisine Spa Collection Szechuan-style Stir Fry With Shrimp",
+    "Ahold Pure Softness Fabric Softener Dryer Sheets Outdoor Scent - 40 Ct",
+    "Newman's Own Organics Newman-o's Original Creme Filled Chocolate Cookies"
+    ]
+}
+
+GET _analyze
+{
+  "tokenizer": "standard",
+  "char_filter": [
+    {"type":"pattern_replace",
+      "pattern" : "http://(.*)",
+      "replacement" : "$1"
+
+    }],
+  "text": ["http://www.elastic.co"]
+}
+
+
+######################################################
+# Mapping
+######################################################
+
+PUT orders-temp/order/1
+{
+  "customer_id" : "442",
+    "shipped" : false,
+    "items" : [
+        {
+            "upc12" : "034700624105",
+            "quantity" : 4,
+            "price" : 9.45
+        },
+        {
+            "upc12" : "070670001720",
+            "quantity" : 1,
+            "price" : 10.42
+        }
+    ]
+}
+
+GET orders-temp/_mappings
+
+PUT orders-2017-01
+{
+     "mappings": {
+      "order": {
+        "properties": {
+          "customer_id": {
+            "type": "keyword"
+
+          },
+          "items": {
+            "properties": {
+              "price": {
+                "type": "float"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "upc12": {
+                "type": "keyword"
+              }
+            }
+          },
+          "shipped": {
+            "type": "boolean"
+          }
+        }
+      }
+ }   }
+
+GET orders-2017-01/_settings
+GET orders-2017-01/_mappings
+
+
+PUT orders-2017-01/order/1
+{
+    "customer_id" : "442",
+    "shipped" : false,
+    "items" : [
+        {
+            "upc12" : "034700624105",
+            "quantity" : 4,
+            "price" : 9.45
+        },
+        {
+            "upc12" : "070670001720",
+            "quantity" : 1,
+            "price" : 10.42
+        }
+    ]
+}
+GET orders-2017-01/order/_search
+
+POST orders-2017-01/order/_mapping
+{
+  "order" : {
+    "dynamic" : "strict"
+  }
+}
+
+PUT orders-2017-01/order/2
+{
+  "order_date" : "2017-01-15"
+}
+
+PUT orders-2017-01/order/32
+{
+  "ship_date" : "2017-01-02"
+}
+
+PUT orders-2017-01/order/3
+{
+  "drop_date" : "2017-01-02"
+}
+
+PUT orders-2017-01/order/5
+{
+  "poop_date" : "2017-01-25"
+}
+
+PUT orders-2017-01/order/7
+{
+  "zulu_date" : "2017-01-25"
+}
+
+GET orders-2017-01/order/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        "match": {
+          {"items.quantity": "4"}
+        }
+      ]
+    }
+  }
+}
+
+
+GET orders-2017-01/order/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {"items.quantity": "4"}}
+      ]
+    }
+  }
+}
+
+PUT _template/cluster_defaults
+{
+ "template": "*",
+ "order": 0,
+ "mappings": {
+   "_default_": {
+     "_all" : {
+       "enabled": false
+     }
+   }
+
+ }
+
+}
+GET test2/_settings
+GET test2/_mappings
+GET test2/_aliases
+
+PUT test2
+{
+
+  "mappings": {
+    "_default_" : {
+    "_all": {
+      "enabled":true
+    }
+    }
+
+  }
+}
+
+GET test_template
+
+PUT test_template
+#### DAY 4 ###
+GET orders-2017-01/order/1
+
+POST orders-2017-01/order/1/_update
+{
+  "doc" : {
+    "shipped": true
+  }
+}
+GET _cat/indices
+
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "orders-2017-01",
+        "alias": "orders-current"
+      }
+    }
+  ]
+}
+
+GET _mget
+{
+  "docs" : [
+    {
+      "_index": "orders-current",
+      "_type": "order",
+      "_id":6
+    },
+    {
+      "_index": "products",
+      "_type": "product",
+      "_id": 4321
+    }
+
+    ]
+}
+
+DELETE orders-current/order/1
+
+
+GET products/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "productName": {
+              "query": "tea",
+              "boost":3
+
+            }
+          }
+        },
+          { "match": {
+            "brandName": "tea"
+        }
+        }
+      ]
+    }
+  },
+  "size": 100
+}
+
+## OR!!! Use MultiMatch###
+
+GET products/_search
+{
+  "size": 100,
+  "query" : {
+    "multi_match": {
+      "query": "tea",
+      "fields": ["productName^3","brandName"],
+      "type" : "most_fields"
+    }
+  }
+}
+
+
+GET products/_search
+{
+  "size": 100,
+  "query": {
+    "bool": {
+      "must": [{
+        "match": {
+          "productName": "tea"
+        }
+      }],
+      "should": [{
+        "match": {
+          "brandName": {
+            "query": "Brisk",
+            "boost" : 1
+          }
+        }
+       },
+       {
+         "match": {
+          "brandName": {
+            "query": "Tetley",
+            "boost" : 2
+          }
+        }
+      }]
+    }
+  }
+}
+
+GET products/_search
+{
+ "size": 30,
+ "query": {
+   "match": {
+     "productName": "kiwi"
+   }
+ }
+}
+# Negative Boost
+GET products/_search
+{
+  "size": 30,
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "match": {
+            "productName": "kiwi"
+          }
+        },
+        {
+          "match": {
+            "brandName": {
+              "query": "kiwi",
+              "boost": -1
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+### aggregations
+GET products/_search
+{
+  "size": 0,
+  "aggs": {
+    "price_stats": {
+      "avg": {
+        "field": "price"
+      }
+
+    }
+  }
+}
+
+GET products/_search
+{
+  "query": {
+    "match": {
+      "brandName": "Betty Crocker"
+    }
+
+  }
+}
+
+GET products/_search
+{
+  "size": 0,
+  "query": {
+     "match": {
+      "brandName": "Betty Crocker"
+    }
+  },
+  "aggs": {
+    "price_stats": {
+      "avg": {
+        "field": "price"
+      }
+
+    }
+  }
+}
+GET stocks/_search
+
+GET stocks/_search
+{
+  "size": 0,
+  "aggs": {
+    "unique_stocks": {
+      "cardinality": {
+        "field": "stock_symbol.keyword"
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+    "query": {
+     "match": {
+      "stock_symbol": "EBAY"
+    }
+  },
+  "aggs": {
+    "average_ebay": {
+      "avg": {
+        "field": "high"
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+
+  "aggs": {
+    "stock_symbol_buckets": {
+      "terms": {
+        "field": "stock_symbol.keyword"
+        , "size": 10,
+          "shard_size": 350
+
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+
+  "aggs": {
+    "stock_symbol_buckets": {
+      "terms": {
+        "field": "stock_symbol.keyword"
+        , "size": 10,
+          "shard_size": 350
+
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 1,
+  "aggs": {
+    "highest_volume": {
+      "max": {
+        "field": "volume"
+      }
+    }
+  }
+
+}
+
+GET stocks/_search
+{
+  "query": {
+    "term": {
+      "volume": {
+        "value": "21474836"
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "stock_symbol.keyword": {
+        "value": "PPG"
+      }
+    }
+  },
+  "aggs": {
+    "volume_histo": {
+      "histogram": {
+        "field": "volume",
+        "interval": 10000
+      }
+    }
+  }
+
+}
+
+
+GET stocks/_search
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "stock_symbol.keyword": {
+        "value": "PPG"
+      }
+    }
+  },
+  "aggs": {
+    "volume_histo": {
+      "histogram": {
+        "field": "volume",
+        "interval": 10000,
+        "min_doc_count": 1
+      },
+      "aggs": {
+        "NAME": {
+          "stats": {
+            "field": "high"
+          }
+        }
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+  "aggs": {
+    "stocks": {
+      "terms": {
+        "field": "stock_symbol.keyword",
+        "size": 524
+      },
+      "aggs": {
+        "monthly_buckets": {
+          "date_histogram": {
+            "field": "trade_date",
+            "interval": "month"
+          }
+        }
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+  "aggs": {
+    "stocks": {
+      "terms": {
+        "field": "stock_symbol.keyword",
+        "size": 524
+      },
+      "aggs": {
+        "monthly_buckets": {
+          "date_histogram": {
+            "field": "trade_date",
+            "interval": "month"
+          }, "aggs": {
+            "computed_average_closing": {
+              "avg": {
+                "field": "close"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+GET stocks/_search
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "stock_symbol.keyword": {
+        "value": "AAPL"
+      }
+    }
+  }, "aggs": {
+    "percentile_buckets": {
+      "percentiles": {
+        "field": "close",
+        "percents": [
+          0.0,
+          25.0,
+          50.0,
+          75.0,
+          100.0
+
+        ]
+      }
+    }
+  }
+}
+
+GET vehicles_temp/_mapping
+PUT vehicles_temp/vehicle/1
+{
+  "make": "Chevrolet",
+  "cars": [
+    {
+      "model": "Corvette",
+      "color": "red",
+      "horsepower": 455
+    },
+    {
+      "model": "Volt",
+      "color": "yellow",
+      "horsepower": 149
+    }
+  ]
+}
+
+GET vehicles/_search
+GET vehicles/_search
+{
+  "query": {
+    "nested": {
+      "path": "cars",
+      "query": {
+        "bool": {
+          "must": [
+            {
+              "match": {
+                "cars.color": "red"
+              }
+            },
+            {
+              "match": {
+                "cars.model": "corvette"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+
+POST _reindex
+{
+  "source" : {
+    "index": "vehicles_temp"
+  },
+  "dest" : {
+    "index": "vehicles"
+  }
+}
+
+PUT vehicles
+{
+    "mappings": {
+      "_default_": {
+        "_all": {
+          "enabled": false
+        }
+      },
+      "vehicle": {
+        "_all": {
+          "enabled": false
+        },
+        "properties": {
+          "cars": {
+            "type": "nested",
+            "properties": {
+              "color": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              },
+              "horsepower": {
+                "type": "long"
+              },
+              "model": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          },
+          "make": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+}
+
+
+## CREATING a PARENT/CHILD
+GET products2/_mappings
+
+PUT products2
+{
+  "mappings": {
+    "product" : {
+        "properties": {
+          "brandName": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "grp_id": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "productName": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "upc12": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "product_sales" : {
+        "_parent": {
+          "type": "product"
+        },
+        "properties": {
+          "customerRating": {
+            "type": "long"
+          },
+          "price": {
+            "type": "float"
+          },
+          "quantitySold": {
+            "type": "long"
+          }
+        }
+      }
+    }
+  }
+
+PUT products2/product/1
+{
+  "brandName": "Omega Infusion",
+  "grp_id": "19302",
+  "upc12": "858243003087",
+  "productName": "Omega Infusion Enhanced Water Citrus"
+}
+
+
+PUT products2/product_sales/2?parent=1
+{
+  "customerRating":5
+}
+
+PUT products2/product_sales/3?parent=1
+{
+      "price": 8.65,
+    "quantitySold": 378810
+}
+
+GET products2/_search
+
+GET products2/product_sales/2?parent=1
+
+POST products2/product_sales/2/_update?parent=1
+{
+  "doc": {
+  "customerRating": 4
+  }
+
+}
+
+GET products2/_search?version=true
+
+## CHILD QUERY ###
+GET products2/product/_search
+{
+  "query": {
+    "has_child": {
+      "type": "product_sales",
+      "query": {
+        "term": {
+          "customerRating": {
+            "value": 4
+          }
+        }
+      }
+    }
+  }
+}
+### PARENT QUERY ####
+GET products2/product_sales/_search
+{
+  "query": {
+    "has_parent": {
+      "type": "product",
+      "query": {
+        "match": {
+          "productName":  "water"
+        }
+      }
+    }
+  }
+}
