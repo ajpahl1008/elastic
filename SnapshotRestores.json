@@ -1,0 +1,19 @@
+# SETUP SNAPSHOT
+# Make sure this is in the elasticsearch.yml
+# Under the path.repo setting
+PUT /_snapshot/my_backup
+{
+  "type": "fs",
+  "settings": {
+    "location": "/Users/ajpahl/Data/elasticsearch/snapshots"
+  }
+}
+
+#TAKE SNAPSHOT
+PUT /_snapshot/my_backup/snapshot_1?wait_for_completion=true
+{
+  "indices": "metricbeat-2017.09.20",
+  "ignore_unavailable": true,
+  "include_global_state": false
+}
+
