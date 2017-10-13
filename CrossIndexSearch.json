@@ -1,0 +1,31 @@
+ST index-a/doc/1
+{
+  "server": "maddog",
+  "flavor": "hp",
+  "country": "USA"
+}
+
+POST index-b/doc/1
+{
+  "server": "maddog",
+  "flavor": "hp"
+}
+
+GET index-a,index-b/_search
+{
+  "query": {
+    "match": {
+      "country": "USA"
+    }
+  }
+}
+
+GET index-a,index-b/_search
+{
+  "query": {
+    "match": {
+      "server": "maddog"
+    }
+  }
+}
+
