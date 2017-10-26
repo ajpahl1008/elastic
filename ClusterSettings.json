@@ -1,0 +1,27 @@
+GET _cat/indices
+
+DELETE netflow-*
+
+GET _stats/indexing
+
+
+POST _template/napa_template
+{
+  "template" : "napa-*",
+  "settings": {
+    "number_of_shards" : 1,
+    "number_of_replicas" : 1
+  }
+}
+
+GET _cluster/settings
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "http.max_content_length": "400mb"
+  },
+  "transient": {
+    "http.max_content_length": "400mb"
+  }
+}

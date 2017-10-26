@@ -1,0 +1,306 @@
+ST /website/blog/1/_update
+{
+    "script" : "ctx._source.views+=1"
+}
+
+POST /website/blog/1/_update
+{
+"script" : {
+        "inline": "ctx._source.tags.add(params.tag)",
+        "params" : {
+            "tag" : "search"
+        }
+    }
+}
+
+POST /website/blog/1/_update
+{
+   "script" : {
+       "inline" : "ctx.op = ctx._source.views == params.count ? 'delete' : 'none'",
+    "params" : {
+        "count": 1
+    }
+   }
+}
+
+GET /website/pageviews/1
+
+POST /website/pageviews/1/_update
+{
+    "script" : "ctx._source.views-=1",
+    "upsert": {
+        "views" : 1
+    }
+}
+
+POST /website/pageviews/1/_update?retry_on_conflict=5
+{
+   "script" : "ctx._source.views+=1",
+   "upsert": {
+       "views": 0
+   }
+}
+
+GET /_mget
+{
+    "docs" : [
+        {
+            "_index": "website",
+            "_type": "blog",
+            "_id" : 2
+        },{
+            "_index": "website",
+            "_type": "pageviews",
+            "_id" : 1,
+            "_source": "views"
+
+        }
+        ]
+}
+
+
+POST /_bulk
+    {"index": {"_index":"website","_type":"blog","_id":"123"}}
+    {"title":    "My 123rd blog post"}
+
+
+POST /_bulk
+{ "delete": { "_index": "website", "_type": "blog", "_id": "123" }}
+{ "create": { "_index": "website", "_type": "blog", "_id": "123" }}
+{ "title":    "My first blog post" }
+{ "index":  { "_index": "website", "_type": "blog" }}
+{ "title":    "My second blog post" }
+{ "update": { "_index": "website", "_type": "blog", "_id": "123", "_retry_on_conflict" : 3} }
+{ "doc" : {"title" : "My updated blog post"} }
+
+
+POST /_bulk
+{ "create": { "_index": "website", "_type": "blog", "_id": "123" }}
+{ "title":    "Cannot create - it already exists" }
+{ "index":  { "_index": "website", "_type": "blog", "_id": "123" }}
+{ "title":    "But we can update it" }
+
+
+DELETE /website/blog/1
+{}
+_search
+
+GET /gb,us/_search?timeout=1ms
+
+GET /gb/_mapping/tweet
+
+GET /_search?q=mary
+
+
+GET /_aliases
+
+GET /_cluster/health
+
+
+GET /_analyze?analyzer=standard
+{"text":"Dude Where is my car"}
+
+GET /_analyze?analyzer=standard
+{"text":"Text to Analyze"}
+
+
+DELETE /gb
+
+PUT /gb
+{
+    "mappings": {
+        "tweet": {
+            "properties": {
+                "tweet": {
+                    "type": "string",
+                    "analyzer": "english"
+                },
+                    "date": {
+                    "type": "date"
+                },
+                    "name" : {
+                    "type": "string"
+                },
+                    "user_id": {
+                        "type": "string"
+                }
+            }
+        }
+    }
+}
+
+PUT /gb/_mapping/tweet
+{
+    "properties": {
+        "tag": {
+            "type" : "string",
+            "index": "not_analyzed"
+        }
+    }
+
+}
+
+GET /gb/_analyze?field=tag
+{"text":"Black-cats"}
+
+#comment field example
+GET /gb/_mappings
+
+GET _stats
+
+GET /_nodes/stats
+
+GET /_cat/indices?v
+
+GET /_cluster/health
+
+GET /index_2014*/type1,type2/_search
+{
+
+}
+
+GET _search/?timeout=1ms
+{
+  "from" : 30,
+  "size": 10
+}
+
+POST /_search
+{
+  "from":30,
+  "size":10
+}
+
+GET /_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET /_search
+{
+  "query": {
+    "match": {
+      "tweet": "elasticsearch"
+    }
+  }
+}
+
+GET /_search
+{
+"query": {
+  "bool": {
+    "must": [
+      {"match": {
+        "tweet": "elasticsearch"
+      }}
+    ],
+    "must_not": [
+      {"match": { "name": "steve" }}
+    ]
+  }
+}
+
+}
+
+GET /_search
+{
+    "query": { "match_all" : {}}
+
+}
+
+GET /gb/tweet/_validate/query
+{
+  "query": {
+    "tweet" : {
+      "match": "really powerful"
+    }
+  }
+}
+
+GET /gb/tweet/_validate/query?explain
+{
+  "query": {
+    "match" : {
+      "tweet": "really powerful"
+    }
+  }
+}
+
+#H8 SORTING
+
+GET /_search
+{
+ "query" : {
+            "match" : { "user_id" : 1}
+
+    },
+    "sort": { "date" : {"order": "desc"}}
+}
+
+GET /_search?track_scores=true
+{
+    "query" : {
+        "bool" : {
+            "must" : { "term" : { "user_id" : 1 }}
+            , "must_not": [
+              { "match": {
+                "tweet": "API"
+              }}
+            ]
+
+        }
+    },
+    "sort": [
+      { "date": { "order": "desc" }},
+      { "_score" : { "order": "desc"}}
+    ]
+
+}
+
+# Query Relevance
+GET /_search?explain
+{
+  "query": {
+    "match" : { "tweet":"honeymoon"}
+  }
+}
+
+# Explain why it matched
+GET /us/tweet/12/_explain
+{
+  "query" : {
+    "bool": {
+      "filter": { "term" : {"user_id": "2"}},
+      "must": { "match": {
+        "tweet": "honeymoon"}
+      }
+    }
+  }
+}
+
+
+#Ch10 Index Management
+
+
+# Creating an index
+
+# Deleting an Index
+DELETE /index_name
+
+# creating an index with no replicas
+PUT /ajs_index
+{
+    "settings": {
+        "number_of_shards" :   1,
+        "number_of_replicas" : 0
+    }
+}
+
+# adding a replica to an index
+PUT /ajs_index/_settings
+{
+"number_of_replicas": 3
+
+}
