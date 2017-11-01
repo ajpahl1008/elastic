@@ -1,0 +1,3 @@
+# Checking to see if an ML JOB hasn't processed all the buckets it needs to
+# if there is a difference, consider adjusting the query_delay value in the ML job.
+.es(index=farequote,metric='sum:doc_count').label("raw data count"), .es(index='.ml-anomalies-my_farequote_job', timefield='timestamp', metric='sum:event_count').label("count ML processed"), .es(index=farequote).subtract(.es(index='.ml-anomalies-my_farequote_job', timefield='timestamp', metric='sum:event_count')).label("difference")
