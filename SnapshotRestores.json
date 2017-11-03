@@ -17,3 +17,34 @@ PUT /_snapshot/my_backup/snapshot_1?wait_for_completion=true
   "include_global_state": false
 }
 
+
+T
+# Make sure this is in the elasticsearch.yml
+# Under the path.repo setting
+PUT /_snapshot/my_backup
+{
+  "type": "fs",
+  "settings": {
+    "location": "/Users/ajpahl/Data/elasticsearch/snapshots"
+  }
+}
+
+#TAKE SNAPSHOT
+PUT /_snapshot/my_backup/snapshot_1?wait_for_completion=true
+{
+  "indices": "metricbeat-2017.09.20",
+  "ignore_unavailable": true,
+  "include_global_state": false
+}
+
+
+# RESTORE SNAPSHOT (AND DO SOME RENAMING)
+POST /_snapshot/my_backup/snapshot_1/_restore
+{
+  "indices": "metricbeat-2017.09.20",
+  "ignore_unavailable": true,
+  "include_global_state": true,
+  "rename_pattern": "restoredIndex_(.+)",
+  "rename_replacement": "restored_index_$1"
+}
+
