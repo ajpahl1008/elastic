@@ -17,3 +17,35 @@ PUT friends
     }
   }
 }
+
+# Adding Users
+PUT friends/docs/1
+{
+  "userId": "Tony",
+  "friends": ["Sara","Lou","Nick","Maggie"]
+}
+
+PUT friends/docs/2
+{
+  "userId": "Sara",
+  "friends": ["Lou","Nick","Maggie"]
+}
+
+PUT friends/docs/3
+{
+  "userId": "Nick",
+  "friends": ["Lou","Maggie"]
+}
+
+PUT friends/docs/4
+{
+  "userId": "Lou",
+  "friends": ["Sara","Nick","Maggie","Tony"]
+}
+
+PUT friends/docs/5
+{
+  "userId": "Maggie",
+  "friends": ["Sara","Lou"]
+}
+
