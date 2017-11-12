@@ -1,4 +1,26 @@
-# Create a Map for Friends (for Graph Demo)
+# Create a Template for Friends (for Graph Demo)
+POST _template/friends_template
+{
+ "template" : "friends*",
+ "order": 10,
+ "settings": {
+   "number_of_shards": 1,
+   "number_of_replicas" : 1
+ },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "userId": {
+          "type": "keyword"
+        }, "friends": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
+
+# This didn't work with Graph because of analyzed Fields
 PUT friends
 {
   "settings": {
