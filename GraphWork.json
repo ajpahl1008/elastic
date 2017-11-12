@@ -1,0 +1,19 @@
+# Create a Map for Friends (for Graph Demo)
+PUT friends
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "userId": {
+          "type": "text"
+        }, "friends": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}
