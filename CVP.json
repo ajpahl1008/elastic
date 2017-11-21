@@ -1,0 +1,30 @@
+# Finding items modified by Employee ID: 16
+GET cvp*/_search
+{
+  "query": {
+    "bool": { 
+      "must": [
+        { "match": { "description":   "Sleek Paper Hat"}}
+      ],
+      "filter": [ 
+        { "term":  { "modified_by_employee_id": "16" }}
+      ]
+    }
+  }
+}
+
+
+# Aggregate based on Seasons
+GET cvp*/_search
+{
+  "query": {
+    "match_all": {}
+  } , "aggs": {
+    "season_aggregation": {
+      "terms": {
+        "field": "ref_seasonal_flag_cd.keyword",
+        "size": 10
+      }
+    }
+  }
+}
