@@ -13,10 +13,10 @@ GET cvp*/_search
   }
 }
 
-
-# Aggregate based on Seasons
+# Aggregate counts of inventory based on Seasons
 GET cvp*/_search
 {
+  "size": 0, 
   "query": {
     "match_all": {}
   } , "aggs": {
@@ -28,3 +28,4 @@ GET cvp*/_search
     }
   }
 }
+
