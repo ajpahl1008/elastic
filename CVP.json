@@ -17,13 +17,10 @@ GET cvp*/_search
 GET cvp*/_search
 {
   "size": 0, 
-  "query": {
-    "match_all": {}
-  } , "aggs": {
+  "aggs": {
     "season_aggregation": {
       "terms": {
-        "field": "ref_seasonal_flag_cd.keyword",
-        "size": 10
+        "field": "ref_seasonal_flag_cd.keyword"
       }
     }
   }
