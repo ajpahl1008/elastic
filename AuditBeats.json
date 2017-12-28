@@ -1,0 +1,33 @@
+#Check for Login Failures over the last 15m
+GET audit*/_search
+{
+  "query": {
+    "bool": {
+      "must": 
+        [
+        {
+          "term": {
+            "audit.kernel.result": "fail"
+          }
+        }],
+        "filter": {
+          "term": {
+            "audit.kernel.category":"user-login"
+          }
+        }
+        , "must_not":
+          {
+            "term": {
+              "audit.kernel.data.terminal": "cron"
+            }
+          }
+        
+    }
+  }, "post_filter": {
+    "range": {
+            "@timestamp": {
+              "gte": "now-15m"
+            }
+          }
+  }
+}
