@@ -1,0 +1,28 @@
+# Stop Writes to Index
+PUT cvp-2017.12.26/_settings
+{
+    "settings": {
+    "index.blocks.write": true 
+  }
+}
+
+# Call the shrink API and set best compression
+POST cvp-2017.12.26/_shrink/cvp-compressed
+{
+  "settings": {
+    "index.number_of_replicas": 1,
+    "index.number_of_shards": 1, 
+    "index.codec": "best_compression" 
+  }
+}
+
+
+# CVP Data Set before and after shrink(with compression)
+#green open cvp            HhSP9XuNRXy9pUMdNCQEPw 1 1 733191 0 1.5gb 870.6mb
+#green open cvp-compressed TlEniKW3RHSWjnoy1icCbw 1 1 733191 0 1.5gb 842.3mb
+#green open cvp-2017.12.26 fEZZILc9Qfefk8sI3ggoQg 5 1 733191 0 1.4gb 738.4mb
+
+# THEN, I did a forcemerge on the compressed index
+POST cvp-compressed/_forcemerge
+
+green open cvp-compressed TlEniKW3RHSWjnoy1icCbw 1 1 733191 0 1.3gb 699.6mb
