@@ -1,0 +1,23 @@
+
+#create a new index (index1) and insert a single doc with one field
+PUT index1/doc/1
+{
+  "field1": "value1"
+}
+
+#reindex and add a blank "field2"
+POST _reindex
+{
+  "source": {
+    "index": "index1"
+  },
+  "dest": {
+    "index": "index2"
+  },
+  "script": {
+    "source": "ctx._source.field2 = params.field2", "params": {"field2":""}
+  }
+}
+
+#Retrieve doc from index2
+GET index2/doc/1
