@@ -1,0 +1,8 @@
+GET _xpack/watcher/watch
+GET _xpack/watcher/stats
+GET _xpack/watcher/stats/current_watches
+GET .watches/_search
+{
+  "_source": "{_id}", 
+  "size" : 100
+}
