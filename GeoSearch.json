@@ -1,3 +1,4 @@
+# Distance Search
 GET zipgeo/_search
 {
  "query": {
@@ -12,6 +13,34 @@ GET zipgeo/_search
                         "lat" : 34.055084,
                         "lon" : -84.390492
                     }
+                }
+            }
+        }
+    }
+}
+
+
+# Bounded box search
+GET zipgeo/_search
+{
+    "query": {
+        "bool" : {
+            "must" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "geo_bounding_box" : {
+                    "location" : {
+                        "top_left" : {
+                            "lat" : 34.137,
+                            "lon" : -84.593
+                        },
+                        "bottom_right" : {
+                            "lat" : 33.894,
+                            "lon" : -84.390
+                        }
+                    }
+
                 }
             }
         }
