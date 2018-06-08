@@ -1,0 +1,239 @@
+POST _template/cvp_template
+{
+  "cvp_template": {
+    "order": 0,
+    "template": "cvp-*",
+    "settings": {
+      "index": {
+        "number_of_shards": "1",
+        "number_of_replicas": "1"
+      }
+    },
+    "mappings": {
+      "cvp": {
+        "properties": {
+          "@timestamp": {
+            "type": "date"
+          },
+          "@version": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "average_cost": {
+            "type": "integer"
+          },
+          "blue": {
+            "type": "keyword"
+          },
+          "case_qty": {
+            "type": "integer"
+          },
+          "core_cost": {
+            "type": "integer"
+          },
+          "core_price": {
+            "type": "integer"
+          },
+          "core_returns_tax_status_primary_ref_option_cd": {
+            "type": "keyword"
+          },
+          "core_returns_tax_status_secondary_ref_option_cd": {
+            "type": "keyword"
+          },
+          "core_sales_tax_status_primary_ref_option_cd": {
+            "type": "keyword"
+          },
+          "core_sales_tax_status_secondary_ref_option_cd": {
+            "type": "keyword"
+          },
+          "cost": {
+            "type": "integer"
+          },
+          "country_of_origin": {
+            "type": "keyword"
+          },
+          "current_year_ref_class_cd": {
+            "type": "integer"
+          },
+          "department_id": {
+            "type": "long"
+          },
+          "description": {
+            "type": "text"
+          },
+          "df_sequence": {
+            "type": "long"
+          },
+          "discount_for_large_invoices": {
+            "type": "integer"
+          },
+          "dvd_cost": {
+            "type": "float"
+          },
+          "economic_order_qty": {
+            "type": "integer"
+          },
+          "economic_order_qty_discount_percent": {
+            "type": "float"
+          },
+          "expanded_part_number": {
+            "type": "long"
+          },
+          "extract_date": {
+            "type": "date"
+          },
+          "factory_std_pkg": {
+            "type": "text"
+          },
+          "green": {
+            "type": "text"
+          },
+          "group_code": {
+            "type": "text"
+          },
+          "hazardous_materials_id": {
+            "type": "integer"
+          },
+          "host": {
+            "type": "text"
+          },
+          "id": {
+            "type": "text"
+          },
+          "invoice_qty_min_for_discount": {
+            "type": "integer"
+          },
+          "jobber_core_cost": {
+            "type": "float"
+          },
+          "jobber_non_stocked_cost": {
+            "type": "float"
+          },
+          "jobber_stocked_cost": {
+            "type": "float"
+          },
+          "last_bin_label_print_date": {
+            "type": "date"
+          },
+          "last_bin_label_print_price": {
+            "type": "float"
+          },
+          "last_modified_date": {
+            "type": "date"
+          },
+          "last_price_change_date": {
+            "type": "date"
+          },
+          "last_updated_dvd_rev_num": {
+            "type": "integer"
+          },
+          "last_year_ref_class_cd": {
+            "type": "integer"
+          },
+          "last_yr_core_cost": {
+            "type": "float"
+          },
+          "last_yr_cost": {
+            "type": "float"
+          },
+          "line_abbrev": {
+            "type": "text"
+          },
+          "list": {
+            "type": "text"
+          },
+          "loc": {
+            "type": "long"
+          },
+          "lock_cost_core_cost": {
+            "type": "integer"
+          },
+          "lock_resale_prices": {
+            "type": "integer"
+          },
+          "master_installer": {
+            "type": "text"
+          },
+          "modified_by_employee_id": {
+            "type": "long"
+          },
+          "part_number": {
+            "type": "long"
+          },
+          "per_car_qty": {
+            "type": "integer"
+          },
+          "pink": {
+            "type": "text"
+          },
+          "port": {
+            "type": "long"
+          },
+          "post_date": {
+            "type": "date"
+          },
+          "red": {
+            "type": "text"
+          },
+          "ref_seasonal_flag_cd": {
+            "type": "text"
+          },
+          "ref_unit_designator_cd": {
+            "type": "text"
+          },
+          "reportable": {
+            "type": "text"
+          },
+          "sort_number": {
+            "type": "long"
+          },
+          "special_product_id_code": {
+            "type": "text"
+          },
+          "standard_pkg": {
+            "type": "text"
+          },
+          "store_group_id": {
+            "type": "long"
+          },
+          "store_retail_price1": {
+            "type": "float"
+          },
+          "store_retail_price2": {
+            "type": "float"
+          },
+          "store_retail_price3": {
+            "type": "float"
+          },
+          "sub_department_id": {
+            "type": "long"
+          },
+          "supplier_id": {
+            "type": "long"
+          },
+          "tax_status_primary_ref_option_cd": {
+            "type": "text"
+          },
+          "tax_status_secondary_ref_option_cd": {
+            "type": "text"
+          },
+          "type": {
+            "type": "text"
+          },
+          "weight_in_kilos": {
+            "type": "long"
+          },
+          "yellow": {
+            "type": "text"
+          }
+        }
+      }
+    },
+    "aliases": {}
+  }
+}
