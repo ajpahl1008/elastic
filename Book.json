@@ -1,3 +1,12 @@
+PUT _template/book_template
+{
+  "template": "book*",
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  }
+}
+
 PUT book/doc/1
 {
   "name": "Elasticsearch - The Definitive Guide",
