@@ -1,0 +1,23 @@
+#Setting an ML forecast
+POST _xpack/ml/anomaly_detectors/system-load-1/_forecast
+{
+  "duration": "2d"
+}
+
+## RESPONSE 
+## {
+#  "acknowledged": true,
+#  "forecast_id": "v91WFGQB4mlWyYMxufTA"
+#}
+
+# Looking for an actual Forecasting Job
+GET .ml-anomalies-shared/doc/_search
+{
+  "query": {
+    "term": {
+      "forecast_id": {
+        "value": "v91WFGQB4mlWyYMxufTA"
+      }
+    }
+  }
+}
