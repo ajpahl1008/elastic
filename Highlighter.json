@@ -1,0 +1,18 @@
+# Just a regular match against any products with wool in the description and highlight the word
+POST cvp/_search
+{
+  "query" : {
+    "match": {
+      "description": "wool"
+    }
+  },
+  "highlight" : {
+       "pre_tags" : ["<em>"],
+        "post_tags" : ["</em>"],
+        "fields" : {
+            "description": {
+              
+            }
+        }
+    }
+}
