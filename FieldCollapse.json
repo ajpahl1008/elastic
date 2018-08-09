@@ -1,0 +1,23 @@
+GET /cvp*/_search
+{
+  "query": {
+    "match": {
+      "description": "silk"
+    }
+  },
+  "collapse": {
+    "field": "ref_seasonal_flag_cd",
+    "inner_hits": [
+      {
+        "name": "country_of_origin",
+        "size": 5
+      },
+      {
+        "name": "department_id"
+      },
+      {
+        "name" : "sub_department_id"
+      }
+    ]
+  }
+}
