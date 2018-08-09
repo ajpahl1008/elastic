@@ -1,0 +1,77 @@
+# Distance Search
+GET zipgeo/_search
+{
+ "query": {
+        "bool" : {
+            "must" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "geo_distance" : {
+                    "distance" : "20000ft",
+                    "location" : {
+                        "lat" : 34.055084,
+                        "lon" : -84.390492
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+# Bounded box search
+GET zipgeo/_search
+{
+    "query": {
+        "bool" : {
+            "must" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "geo_bounding_box" : {
+                    "location" : {
+                        "top_left" : {
+                            "lat" : 34.137,
+                            "lon" : -84.593
+                        },
+                        "bottom_right" : {
+                            "lat" : 33.894,
+                            "lon" : -84.390
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+
+# Setup Mapping for ZipGeo Data
+PUT _template/zipgeo
+{
+    "order": 10,
+    "index_patterns": [
+      "zipgeo*"
+    ],
+    "settings": {
+      "index": {
+        "number_of_shards": "3",
+        "number_of_replicas": "0"
+      }
+    },
+    "mappings": {
+      "doc": {
+        "properties": {
+          "zipcode": {
+            "type": "integer"
+          },
+          "location": {
+            "type": "geo_point"
+          }
+        }
+      }
+    },
+    "aliases": {}
+}

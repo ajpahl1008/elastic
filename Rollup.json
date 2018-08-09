@@ -1,0 +1,78 @@
+
+
+# Creating a rollup job for the Metricbeat System Module RTT Metric (only)
+PUT _xpack/rollup/job/metricbeat_system
+{
+  "index_pattern": "metricbeat-*",
+  "rollup_index": "metricbeat_rtt_rollup", 
+  "cron": "*/30 * * * * ?",
+  "page_size": 100, 
+     "groups" : {
+      "date_histogram": {
+        "field": "@timestamp",
+        "interval": "1h",
+        "delay": "1m"
+      },
+      "terms": {
+        "fields": ["metricset.name","metricset.module"]
+      }
+    },
+  "metrics": [{
+            "field": "metricset.rtt",
+            "metrics": ["min", "max", "sum"]
+  }]
+}
+
+# Start The Rollup Job
+POST _xpack/rollup/job/metricbeat_system/_start
+
+# Get the Job
+GET _xpack/rollup/job/metricbeat_system
+
+# Search for the Max in Metrics
+GET metricbeat_rtt_rollup/_rollup_search
+{
+  "size": 0,
+  "aggregations": {
+    "timeline": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "interval": "1h"
+      },
+      "aggs": {
+        "metricset.name": {
+          "terms": {
+            "field": "metricset.name"
+          },
+          "aggs": {
+            "sum_rtt": {
+              "sum": {
+                "field": "metricset.rtt"
+              }
+            },
+            "max_rtt": {
+              "max": {
+                "field": "metricset.rtt"
+              }
+            },
+            "min_rtt": {
+              "min": {
+                "field": "metricset.rtt"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+GET _xpack/rollup/data/_all
+
+# Stop The Rollup Job
+POST _xpack/rollup/job/metricbeat_system/_stop
+
+# Delete the Rollup Job and Index
+DELETE _xpack/rollup/job/metricbeat_system
+DELETE metricbeat_rtt_rollup
+

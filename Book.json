@@ -1,0 +1,52 @@
+DELETE _template/book_template
+
+DELETE book
+
+PUT _template/book_template
+{
+  "index_patterns" : "book*",
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  }, 
+  "mappings": {
+    "doc": {
+      "properties": {
+        "published_at": {
+          "type": "date",
+          "format": "yyyy-MM-dd"
+          
+        }
+      }
+    }
+  }
+}
+
+PUT book/doc/1
+{
+  "name": "Elasticsearch - The Definitive Guide",
+  "authors": [ "Clinton Gormley", "Zachary Tong"],
+  "pages": 722,
+  "published_at" : "2015-01-31"
+}
+
+GET book/doc/1
+
+# URL Query
+GET book/doc/_search?q=elasticsearch
+
+# Filtered Query
+GET /_search
+{
+  "query": { 
+    "bool": { 
+      "must": [
+        { "match": { "name":   "elasticsearch"        }} 
+       
+      ],
+      "filter": [ 
+        { "range": { "published_at": { "gte": "2014-01-01" }}} 
+      ]
+    }
+  }
+}
