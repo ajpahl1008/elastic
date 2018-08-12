@@ -1,0 +1,25 @@
+# Create a simple Inventory Item
+PUT exampledocs/doc/1
+{
+  "price": 100.00,
+  "product_name": "widget",
+  "inventory" : 100
+}
+
+# Get the version Number
+GET exampledocs/doc/1
+
+# Update using version in url
+POST exampledocs/doc/1?version=10
+{
+  "price": 100.00,
+  "product_name": "widget",
+  "inventory" : 100
+}
+
+# Update using API and scripting
+POST exampledocs/doc/1/_update
+{
+  "script" : "ctx._source.price += 1.25"
+}
+
