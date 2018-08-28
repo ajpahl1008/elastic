@@ -1,0 +1,112 @@
+#CONA Index Template
+POST _template/ecc
+{
+ "index_patterns" : "ecc*",
+ "order": 1,
+ "settings": {
+   "number_of_shards": 3,
+   "number_of_replicas" : 1
+ },"mappings": {
+      "doc": {
+        "properties": {
+          "@metdata": {
+            "properties": {
+              "ip_address": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          },
+          "@timestamp": {
+            "type": "date"
+          },"AVG_CHANGE_TIME": {
+            "type": "float"
+          },
+          "AVG_CPU_TIME": {
+            "type": "float"
+          },
+          "AVG_DATABASE_TIME": {
+            "type": "float"
+          },
+          "AVG_DIRECT_READ_TIME": {
+            "type": "long"
+          },
+          "AVG_PROCESSING_TIME": {
+            "type": "float"
+          },
+          "AVG_QUEUE_TIME": {
+            "type": "long"
+          },
+          "AVG_RESPONSE_TIME": {
+            "type": "float"
+          },
+          "AVG_ROLLWAIT_TIME": {
+            "type": "float"
+          },
+          "AVG_SEQ_READ_TIME": {
+            "type": "float"
+          },
+          "COUNT": {
+            "type": "long"
+          },
+          "DATE": {
+            "type": "date",
+          },
+          "ENTRY_ID": {
+            "type": "keyword",
+            "ignore_above": 1024
+          },
+          "TABLE": {
+            "type": "keyword",
+            "ignore_above": 1024
+          },
+          "TASKTYPE": {
+            "type": "keyword",
+            "ignore_above": 1024
+          },
+          "TIME": {
+            "type": "date",
+          },
+          "TIMESTAMP": {
+            "type": "date",
+          },
+          "TOTAL_CHANGE_TIME": {
+            "type": "long"
+          },
+          "TOTAL_CPU_TIME": {
+            "type": "float"
+          },
+          "TOTAL_DATABASE_TIME": {
+            "type": "long"
+          },
+          "TOTAL_DIALOG_STEPS": {
+            "type": "long"
+          },
+          "TOTAL_DIRECT_READ_TIME": {
+            "type": "long"
+          },
+          "TOTAL_PROCESSING_TIME": {
+            "type": "float"
+          },
+          "TOTAL_QUEUE_TIME": {
+            "type": "float"
+          },
+          "TOTAL_RESPONSE_TIME": {
+            "type": "float"
+          },
+
+          "TOTAL_ROLLWAIT_TIME": {
+            "type": "float"
+          },
+          "TOTAL_SEQ_READ_TIME": {
+            "type": "float"
+          }
+        }
+      }
+    }
+}
