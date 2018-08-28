@@ -1,4 +1,8 @@
-#CONA Index Template
+DELETE ecc
+
+DELETE _template/ecc
+
+#CONA: Index Template
 POST _template/ecc
 {
  "index_patterns" : "ecc*",
@@ -56,6 +60,7 @@ POST _template/ecc
           },
           "DATE": {
             "type": "date",
+            "format": "MM-dd-yyy||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||HH:mm:ss||epoch_millis"
           },
           "ENTRY_ID": {
             "type": "keyword",
@@ -71,9 +76,11 @@ POST _template/ecc
           },
           "TIME": {
             "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||HH:mm:ss||epoch_millis"
           },
           "TIMESTAMP": {
             "type": "date",
+            "format": "MM-dd-yyyy HH:mm:ss||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||HH:mm:ss||epoch_millis"
           },
           "TOTAL_CHANGE_TIME": {
             "type": "long"
@@ -110,3 +117,4 @@ POST _template/ecc
       }
     }
 }
+
