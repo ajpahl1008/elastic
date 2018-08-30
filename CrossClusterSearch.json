@@ -1,0 +1,47 @@
+# Cross Cluster Search for Maddog and Elastic-Pi
+# Master on Pi Cluster : 192.168.0.130:9300
+# Master on Maddog: 192.168.0.214:9300
+PUT _cluster/settings
+{
+  "persistent": {
+    "search": {
+      "remote": {
+        "elastic_pi": {
+          "seeds": [
+            "192.168.0.129:9300",
+            "192.168.0.130:9300",
+            "192.168.0.131:9300"
+          ]
+        }
+      }
+    }
+  }
+}
+
+GET _cluster/settings
+
+# Deleting Cross Cluster Search Settings
+PUT _cluster/settings
+{
+  "persistent": {
+    "search": {
+      "remote": {
+        "elastic_pi": {
+          "seeds": null 
+        }
+      }
+    }
+  }
+}
+
+GET /_remote/info
+
+#Cross Cluster Search
+GET /maddog_pi:cvp*/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
