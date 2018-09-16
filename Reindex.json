@@ -21,3 +21,22 @@ POST _reindex
 
 #Retrieve doc from index2
 GET index2/doc/1
+
+# Put this in your elasticsearch.yml
+# reindex.remote.whitelist: ["oldhost:9200,"*:*"]
+# Remote Re-index
+POST _reindex
+{
+  "source": {
+    "remote": {
+      "host": "http://0.0.0.0:9200",
+      "username": "",
+      "password": ""
+    },
+    "index": "zip_geo",
+    }
+  },
+  "dest": {
+    "index": "zip_geo"
+  }
+}

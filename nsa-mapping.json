@@ -1,0 +1,32 @@
+POST _template/nsa
+{
+  "order": 0,
+    "index_patterns": ["nsa*"],
+    "settings": {
+      "index": {
+        "number_of_shards": "1",
+        "number_of_replicas": "1"
+      }
+    },
+     "mappings": {
+      "_doc": {
+        "properties": {
+          "@timestamp": {
+            "type": "date"
+          },
+          "device": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "location": {
+            "type": "geo_point"
+          }
+        }
+      }
+    }
+}
