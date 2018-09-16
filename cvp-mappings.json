@@ -1,8 +1,7 @@
 POST _template/cvp_template
 {
-  "cvp_template": {
     "order": 0,
-    "template": "cvp-*",
+    "index_patterns": ["cvp-*"],
     "settings": {
       "index": {
         "number_of_shards": "1",
@@ -235,5 +234,4 @@ POST _template/cvp_template
       }
     },
     "aliases": {}
-  }
 }
