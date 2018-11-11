@@ -23,7 +23,7 @@ POST _reindex
 GET index2/doc/1
 
 # Put this in your elasticsearch.yml
-# reindex.remote.whitelist: ["oldhost:9200,"*:*"]
+# reindex.remote.whitelist: ["oldhost:9200","*:*"]
 # Remote Re-index
 POST _reindex
 {
