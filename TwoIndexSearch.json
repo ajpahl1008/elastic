@@ -1,0 +1,14 @@
+# Searching Across Multiple Indices
+GET metricbeat-6.*,filebeat-6.*/_search?wai
+{
+  "size": 0,
+  "aggs": {
+    "hostnames": {
+      "terms": {
+        "script": {
+          "source": "if (doc['_index'].value.startsWith(\"filebeat-\")) {doc['beat.name'].value} else if (doc['_index'].value.startsWith(\"metricbeat-\")) {doc['beat.hostname'].value} else {return 'fakey'}"
+        }
+    }
+  }
+}
+}
