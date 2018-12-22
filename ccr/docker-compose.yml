@@ -1,0 +1,111 @@
+version: '2.2'
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es02
+    environment:
+      - node.name=es02
+      - discovery.zen.ping.unicast.hosts=es01
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata02:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  kibana1:
+    image: docker.elastic.co/kibana/kibana:7.0.0-alpha2
+    container_name: kibana1
+    environment:
+      SERVER_NAME: kibana1
+      ELASTICSEARCH_URL: http://es01:9200
+    ports:
+      - 5602:5601
+    networks:
+      - esnet
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.initial_master_nodes=es03,es04
+      - cluster.name=docker-cluster-2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata03:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+    networks:
+      - esnet
+  es04:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es04
+    environment:
+      - node.name=es04
+      - discovery.zen.ping.unicast.hosts=es03
+      - cluster.initial_master_nodes=es03,es04
+      - cluster.name=docker-cluster-2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata04:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  kibana2:
+    image: docker.elastic.co/kibana/kibana:7.0.0-alpha2
+    container_name: kibana2
+    environment:
+      SERVER_NAME: kibana2
+      ELASTICSEARCH_URL: http://es03:9200
+    ports:
+      - 5603:5601
+    networks:
+      - esnet
+
+volumes:
+  esdata01:
+    driver: local
+  esdata02:
+    driver: local
+  esdata03:
+    driver: local
+  esdata04:
+    driver: local
+  kibanadata:
+    driver: local
+
+networks:
+  esnet:
