@@ -1,0 +1,79 @@
+
+# CLUSTER 2 (remote Cluster)
+# Create a leader in the remote server
+PUT /_cluster/settings
+{
+  "persistent" : {
+    "cluster" : {
+      "remote" : {
+        "leader" : {
+          "seeds" : [
+            "es01:9300" 
+          ]
+        }
+      }
+    }
+  }
+}
+
+
+#check the connetion works
+GET /_remote/info
+
+
+# CLUSTER 1 (source cluster)
+# Configure Mappings for the Index
+PUT /repository
+{
+  "settings" : {
+    "index" : {
+      "number_of_shards" : 1,
+      "number_of_replicas" : 0,
+      "soft_deletes" : {
+        "retention" : {
+          "operations" : 1024 
+        }
+      }
+    }
+  },
+  "mappings" : {
+    "doc" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date"
+        },
+        "first_name" : {
+          "type" : "text"
+        },
+        "last_name" : {
+          "type" : "text"
+        },
+        "age" : {
+          "type" : "integer"
+        }
+      }
+    }
+  }
+}
+
+# CLUSTER 2
+# Define the index to follow
+PUT /repository/_ccr/follow
+{
+  "remote_cluster" : "leader",
+  "leader_index" : "repository"
+}
+
+
+# CLUSTER 1
+# Insert a new document
+POST repository/profiles
+{
+  "first_name": "Joe",
+  "last_name":"Smith",
+  "age": 12
+}
+
+# CLUSTER 2
+# Search for index repository
+GET respository/_search
