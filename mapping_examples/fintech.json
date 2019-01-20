@@ -67,6 +67,9 @@ PUT _template/fintech
         "merchant_id": {
           "type": "long"
         },
+        "zipcode": {
+          "type":"long"  
+        },
         "posting_date": {
           "type": "date"
         },
