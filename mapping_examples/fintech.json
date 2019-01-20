@@ -1,0 +1,85 @@
+PUT _template/fintech
+{
+  "order": 0,
+  "index_patterns": [
+    "fintech-*"
+  ],
+  "settings": {
+    "index": {
+      "number_of_shards": "3",
+      "number_of_replicas": "1"
+    }
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "address": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "amount": {
+          "type": "float"
+        },
+        "card_number": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "city": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "fraud": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "merchant_category": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "merchant_id": {
+          "type": "long"
+        },
+        "posting_date": {
+          "type": "date"
+        },
+        "state": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
+    }
+  }
+}
