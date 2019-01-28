@@ -1,0 +1,79 @@
+# Search the first 100 categories
+GET fintech*/_search
+{
+  "size": 0,
+  "aggs": {
+    "category": {
+      "terms": {
+        "field": "merchant_category.keyword",
+        "size": 100
+      }
+    }
+  },"sort": [
+    {
+      "aggregations.category.buckets.doc_count": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+
+# Search the first 100 categories
+GET fintech*/_search
+{
+  "size": 0,
+  "aggs": {
+    "category": {
+      "terms": {
+        "field": "merchant_category.keyword",
+        "size": 100,
+        "order": {
+          "_count": "desc"
+        }
+        
+      }
+    }
+  }
+}
+
+#Fuzzy Search for Name
+GET dda-accounts/_search
+{
+  "_source": ["name.first","name.last","dda"], 
+  "query": {
+    "fuzzy": {
+      "name.first": {
+        "value": "Vincent"
+      }
+    }
+  }
+}
+
+# Search for account (dda == UUID)
+GET dda-accounts/_search
+{
+  "query": {
+    "term": {
+      "dda.keyword": {
+        "value": "05880b74-52a1-4370-a536-5aecb70beedf"
+      }
+    }
+  }
+}
+
+# SSN Search
+GET dda-accounts/_search
+{
+  "query": {
+    "term": {
+      "ssn.keyword": {
+        "value": "192-70-1540"
+      }
+    }
+  }
+}
+
+GET fintech-debit/_mapping
+GET fintech-credit/_search
+GET dda-accounts/_search
+
