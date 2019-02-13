@@ -1,0 +1,151 @@
+version: '2.2'
+services:
+  es01_c01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es01_c01
+    environment:
+      - node.name=es01_c01
+      - cluster.initial_master_nodes=es01_c01,es02_c01,es03_c01
+      - cluster.name=docker-cluster-1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata01_c01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+  es02_c01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es02_c01
+    environment:
+      - node.name=es02_c01
+      - discovery.zen.ping.unicast.hosts=es01_c01
+      - cluster.initial_master_nodes=es01_c01,es02_c01,es03_c01
+      - cluster.name=docker-cluster-1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata02_c01:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  es03_c01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es03_c01
+    environment:
+      - node.name=es03_c01
+      - discovery.zen.ping.unicast.hosts=es01_c01
+      - cluster.initial_master_nodes=es01_c01,es02_c01,es03_c01
+      - cluster.name=docker-cluster-1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata03_c01:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  kibana1:
+    image: docker.elastic.co/kibana/kibana:7.0.0-alpha2
+    container_name: kibana1
+    environment:
+      SERVER_NAME: kibana1
+      ELASTICSEARCH_URL: http://es01_c01:9200
+    ports:
+      - 5602:5601
+    networks:
+      - esnet
+  es01_c02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es01_c02
+    environment:
+      - node.name=es01_c02
+      - cluster.initial_master_nodes=es01_c02,es02_c02,es03_c02
+      - cluster.name=docker-cluster-2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata01_c02:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+    networks:
+      - esnet
+  es02_c02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es02_c02
+    environment:
+      - node.name=es02_c02
+      - discovery.zen.ping.unicast.hosts=es01_c02
+      - cluster.initial_master_nodes=es01_c02,es02_c02,es03_c02
+      - cluster.name=docker-cluster-2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata02_c02:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  es03_c02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-alpha2
+    container_name: es03_c02
+    environment:
+      - node.name=es03_c02
+      - discovery.zen.ping.unicast.hosts=es01_c02
+      - cluster.initial_master_nodes=es01_c02,es02_c02,es03_c02
+      - cluster.name=docker-cluster-2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata03_c02:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  kibana2:
+    image: docker.elastic.co/kibana/kibana:7.0.0-alpha2
+    container_name: kibana2
+    environment:
+      SERVER_NAME: kibana2
+      ELASTICSEARCH_URL: http://es01_c02:9200
+    ports:
+      - 5603:5601
+    networks:
+      - esnet
+
+volumes:
+  esdata01_c01:
+    driver: local
+  esdata02_c01:
+    driver: local
+  esdata03_c01:
+    driver: local
+  esdata01_c02:
+    driver: local
+  esdata02_c02:
+    driver: local
+  esdata03_c02:
+    driver: local
+  kibanadata:
+    driver: local
+
+networks:
+  esnet:
