@@ -1,0 +1,47 @@
+# Add following to metricbeat.yml
+#ilm.enabled: true
+# ilm.rollover_alias: "metricbeat"
+#  ilm.pattern: "{now/d}-000001"
+
+# Run metricbeat setup --ilm-policy
+# Run metricbeat setup
+
+#ILM Set Poll Interval to 5s
+PUT /_cluster/settings
+{
+   "persistent" : {
+       "indices.lifecycle.poll_interval": "5s"
+   }
+}
+
+# Explain ILM for an index
+GET metricbeat*/_ilm/explain
+
+# Start ILM
+POST _ilm/start
+
+# Stop ILM
+POST _ilm/stop
+
+# Get ILM Status
+GET /_ilm/status
+
+# Get Policy
+get _ilm/policy/beats-default-policy
+
+# Update Policy
+PUT  _ilm/policy/beats-default-policy
+{
+  "policy" : {
+      "phases" : {
+        "hot" : {
+          "min_age" : "0ms",
+          "actions" : {
+            "rollover" : {
+              "max_age" : "30s"
+            }
+          }
+        }
+      }
+    }
+}
