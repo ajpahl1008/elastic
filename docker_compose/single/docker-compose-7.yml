@@ -1,0 +1,85 @@
+version: '2.2'
+services:
+  es01_c01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: es01_c01
+    environment:
+      - node.name=es01_c01
+      - cluster.initial_master_nodes=es01_c01,es02_c01,es03_c01
+      - cluster.name=docker-cluster-1
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata01_c01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+  es02_c01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: es02_c01
+    environment:
+      - node.name=es02_c01
+      - discovery.seed_hosts=es01_c01
+      - cluster.initial_master_nodes=es01_c01,es02_c01,es03_c01
+      - cluster.name=docker-cluster-1
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata02_c01:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  es03_c01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: es03_c01
+    environment:
+      - node.name=es03_c01
+      - discovery.seed_hosts=es01_c01
+      - cluster.initial_master_nodes=es01_c01,es02_c01,es03_c01
+      - cluster.name=docker-cluster-1
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata03_c01:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  kibana1:
+    image: docker.elastic.co/kibana/kibana:7.2.0
+    container_name: kibana1
+    environment:
+      SERVER_NAME: kibana1
+      ELASTICSEARCH_HOSTS: "http://es01_c01:9200"
+    ports:
+      - 5602:5601
+    volumes:
+      - kibanadata1:/usr/share/kibana/data
+    networks:
+      - esnet
+
+volumes:
+  esdata01_c01:
+    driver: local
+  esdata02_c01:
+    driver: local
+  esdata03_c01:
+    driver: local
+  kibanadata1:
+    driver: local
+
+networks:
+  esnet:
