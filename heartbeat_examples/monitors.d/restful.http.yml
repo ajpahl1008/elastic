@@ -1,0 +1,13 @@
+- type: http
+  name: product-service-restful
+  schedule: '@every 5s'
+  urls: ["http://AJ-MBP-Elastic.local:9998/product/logstash"]
+  check.request:
+    method: GET
+  check.response:
+    status: 200
+    json:
+      - description: check status
+        condition:
+          equals: 
+            name: "Logstash"

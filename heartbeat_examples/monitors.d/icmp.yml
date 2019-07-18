@@ -1,0 +1,11 @@
+- type: icmp
+  name: ping-tests-google-dns
+  schedule: '*/5 * * * * * *'
+  hosts: ["8.8.8.8","8.8.4.4."]
+  ipv4: true
+  ipv6: false
+  mode: any
+  timeout: 16s
+  wait: 1s
+  fields:
+    env: dev

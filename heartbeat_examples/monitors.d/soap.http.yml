@@ -1,0 +1,10 @@
+- type: http
+  name: product-service-soap
+  schedule: '@every 5s'
+  urls: ["http://AJ-MBP-Elastic.local:9999/ws/product"]
+  check.request:
+    method: POST
+    body: '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.elksoft.com/"> <soapenv:Header/> <soapenv:Body> <ws:getProduct> <arg0>logstash</arg0> </ws:getProduct> </soapenv:Body> </soapenv:Envelope>'
+  check.response:
+    status: 200
+    body: '(?s).*.<name>Logstash</name>.*'

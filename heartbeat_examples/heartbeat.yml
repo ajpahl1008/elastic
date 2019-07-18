@@ -1,0 +1,29 @@
+heartbeat.config.monitors:
+  path: ${path.config}/monitors.d/*.yml
+  reload.enabled: true
+  reload.period: 5s
+
+setup.template.settings:
+  index.number_of_shards: 1
+  index.codec: best_compression
+
+tags: ["dev-web-services"]
+
+fields:
+  env: dev
+
+processors:
+- add_observer_metadata:
+    netinfo.enabled: false
+    cache.ttl: 5m
+    geo:
+      name: dev-dc-1
+      location: 40.7128, -74.0060
+      continent_name: North America
+      country_iso_code: US
+      region_name: Atlanta
+      region_iso_code: GA
+      city_name: Rosewell
+
+cloud.id: <Redacted>
+cloud.auth: <Redacted>
