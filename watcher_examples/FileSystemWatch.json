@@ -1,0 +1,70 @@
+# Assume you have Metricbeat running with the "filesystem/fsstat" metricsets running.
+
+# Basic Watcher to capture filesystems (by mountpoint) over 80% used in the last 5 minutes
+{
+  "trigger": {
+    "schedule": {
+      "interval": "30m"
+    }
+  },
+  "input": {
+    "search": {
+      "request": {
+        "search_type": "query_then_fetch",
+        "indices": [
+          "metricbeat*"
+        ],
+        "rest_total_hits_as_int": true,
+        "body": {
+          "query": {
+            "bool": {
+              "filter": [
+                {
+                  "range": {
+                    "system.filesystem.used.pct": {
+                      "gte": 0.65
+                    }
+                  }
+                },
+                {
+                  "range": {
+                    "@timestamp": {
+                      "gte": "now-5m"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "aggs": {
+            "offending_servers": {
+              "terms": {
+                "field": "agent.hostname"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "condition": {
+    "compare": {
+      "ctx.payload.hits.total": {
+        "gte": 1
+      }
+    }
+  },
+  "actions": {
+    "slack_1": {
+      "slack": {
+        "message": {
+          "to": [
+            "monitoring-channel"
+          ],
+          "text": "Watch [{{ctx.metadata.name}}] detected for [{{ctx.payload.hits.total}}] filesystems over 80% on [{{ctx.payload.aggregations.offending_servers.buckets.size}}] servers"
+        }
+      }
+    }
+  }
+}
+
