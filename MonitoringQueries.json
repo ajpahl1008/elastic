@@ -1,0 +1,60 @@
+# Get the maximum size of an index in a 24 hour interval.
+# trying to calculate daily ingest rates 
+# when sized based rollover may be active
+GET .monitoring-es*/_search
+{
+  "size": 1,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "timestamp": {
+              "gte": "now-7d"
+            }
+          }
+        }
+      ],
+      "filter": [
+        {
+          "bool": {
+            "should": [
+              {
+                "query_string": {
+                  "fields": [
+                    "index_stats.index"
+                  ],
+                  "query": "metricbeat*"
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        }
+      ],
+      "should": [],
+      "must_not": []
+    }
+  },
+  "aggs": {
+    "by_day": {
+      "date_histogram": {
+        "field": "timestamp",
+        "calendar_interval": "day"
+      },
+      "aggs": {
+        "size": {
+          "max": {
+            "field": "index_stats.total.store.size_in_bytes"
+          }
+        }
+      }
+    }, "daily_index_size": {
+      "max_bucket": {
+        "buckets_path": "by_day>size",
+        "format": "0,000"
+        
+      }
+    }
+  }
+}
