@@ -1,0 +1,8 @@
+esrally \
+--target-hosts=es_host_1:9243,es_host2:9243,es_host_3:9243 \
+--pipeline=benchmark-only \
+--client-options="use_ssl:true,verify_certs:false,basic_auth_user:'elastic',basic_auth_password:'password'" \
+--challenge="elasticlogs-1bn-load" \
+--track-path=/home/elastic/eventdata/rally-eventdata-track/eventdata \
+--track-param="bulk_indexing_clients:80,shard_count:13,number_of_replicas:1" \
+--load-driver-hosts=0.0.0.0,1.1.1.1,2.2.2.2
