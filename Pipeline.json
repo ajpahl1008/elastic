@@ -1,0 +1,20 @@
+PUT _ingest/pipeline/voice_telemetry
+{
+  "description": "telemetry pipeline",
+  "processors": [
+    {
+      "dissect": {
+        "field": "message",
+        "pattern": "%{timestamp}=%{market}=%{active_lines}=%{blocked_lines}"
+      }
+    }
+  ]
+}
+
+PUT telco-telemetry-index/_doc/my-id?pipeline=voice_telemetry
+{
+  "message": "09/02/19 02:01:18=westport=2969=362"
+}
+
+GET telco-telemetry-index/_doc/my-id
+
