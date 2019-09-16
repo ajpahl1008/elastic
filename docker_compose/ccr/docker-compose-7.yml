@@ -1,7 +1,7 @@
 version: '2.2'
 services:
   es01_c01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
     container_name: es01_c01
     environment:
       - node.name=es01_c01
@@ -20,7 +20,7 @@ services:
     networks:
       - esnet
   es02_c01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
     container_name: es02_c01
     environment:
       - node.name=es02_c01
@@ -38,7 +38,7 @@ services:
     networks:
       - esnet
   es03_c01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
     container_name: es03_c01
     environment:
       - node.name=es03_c01
@@ -56,7 +56,7 @@ services:
     networks:
       - esnet
   kibana1:
-    image: docker.elastic.co/kibana/kibana:7.0.0-beta1
+    image: docker.elastic.co/kibana/kibana:7.3.2
     container_name: kibana1
     environment:
       SERVER_NAME: kibana1
@@ -68,7 +68,7 @@ services:
     networks:
       - esnet
   es01_c02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
     container_name: es01_c02
     environment:
       - node.name=es01_c02
@@ -87,7 +87,7 @@ services:
     networks:
       - esnet
   es02_c02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
     container_name: es02_c02
     environment:
       - node.name=es02_c02
@@ -105,7 +105,7 @@ services:
     networks:
       - esnet
   es03_c02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
     container_name: es03_c02
     environment:
       - node.name=es03_c02
@@ -123,7 +123,7 @@ services:
     networks:
       - esnet
   kibana2:
-    image: docker.elastic.co/kibana/kibana:7.0.0-beta1
+    image: docker.elastic.co/kibana/kibana:7.3.2
     container_name: kibana2
     environment:
       SERVER_NAME: kibana2
