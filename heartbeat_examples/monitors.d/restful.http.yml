@@ -1,7 +1,7 @@
 - type: http
   name: product-service-restful
   schedule: '@every 5s'
-  urls: ["http://AJ-MBP-Elastic.local:9998/product/logstash"]
+  urls: ["http://localhost:9001/product/logstash"]
   check.request:
     method: GET
   check.response:
