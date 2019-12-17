@@ -18,7 +18,7 @@ cd services/soap/build/libs; java -jar restful-1.0.0.jar
 `
 
 ###### Validation
-curl http://localhost:9998/product/logstash
+curl http://localhost:9001/product/logstash
 
 #SOAP Service Endpoint
 
