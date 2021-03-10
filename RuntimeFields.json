@@ -1,0 +1,31 @@
+# RUNTIME FIELDS
+
+GET inventory-data/_count
+
+GET inventory-data/_mapping
+
+GET inventory-data/_search
+
+# CREATING THE MAPPING
+PUT inventory-data/_mappings
+{
+ "runtime": {
+   "product.median_price": {
+     "type" : "double",
+     "script": {
+       "source": " emit(Float.parseFloat(doc['product.max_price'].value.toString()) + Float.parseFloat(doc['product.min_price'].value.toString()) / 2)"
+     }
+   }
+ }
+}
+
+GET inventory-data/_search
+{
+  "size": 1, 
+  "query": {
+      "match": {
+        "product.category": "computers"
+      }
+  }, "fields": ["product.median_price"]
+}
+
