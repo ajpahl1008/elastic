@@ -10,7 +10,7 @@ GET inventory-data/_search
 PUT inventory-data/_mappings
 {
  "runtime": {
-   "product.median_price": {
+   "product.mean_price": {
      "type" : "double",
      "script": {
        "source": " emit(Float.parseFloat(doc['product.max_price'].value.toString()) + Float.parseFloat(doc['product.min_price'].value.toString()) / 2)"
@@ -26,6 +26,6 @@ GET inventory-data/_search
       "match": {
         "product.category": "computers"
       }
-  }, "fields": ["product.median_price"]
+  }, "fields": ["product.mean_price"]
 }
 
