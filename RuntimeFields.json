@@ -19,6 +19,7 @@ PUT inventory-data/_mappings
  }
 }
 
+# Basic search for 1 doc in the computers category
 GET inventory-data/_search
 {
   "size": 1, 
@@ -29,3 +30,20 @@ GET inventory-data/_search
   }, "fields": ["product.mean_price"]
 }
 
+# now add an aggregation and skip cache 
+GET inventory-data/_search?request_cache=false
+{
+  "size": 0, 
+  "query": {
+    "match": {
+      "product.category": "computers"
+    }
+  }, 
+  "aggs": {
+    "mean_price": {
+      "max": {
+        "field": "product.mean_price"
+      }
+    }
+  }
+}
